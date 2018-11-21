@@ -1,5 +1,0 @@
-package dal.dao;
-
-public class ContactDaoImpl implements ContactDao {
-
-}

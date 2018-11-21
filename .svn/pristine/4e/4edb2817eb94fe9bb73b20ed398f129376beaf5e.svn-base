@@ -1,7 +1,0 @@
-<body>
-	<div id="pageLogin" style="display: none">
-		login<input type="text" id="inputLogin"><br>
-		mdp<input type="password" id="inputMdp"><br>
-		<button id="btnLogin">Se connecter</button>
-	</div>
-</body>

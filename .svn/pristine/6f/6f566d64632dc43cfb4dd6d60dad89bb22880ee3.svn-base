@@ -1,5 +1,0 @@
-package biz.entreprise;
-
-public interface EntrepriseDto {
-
-}

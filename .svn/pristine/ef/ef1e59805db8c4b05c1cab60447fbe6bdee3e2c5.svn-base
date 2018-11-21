@@ -1,4 +1,0 @@
-	<div id="pageCongrats" style="display: none">
-		<div style="color:white">Congrats <span id="whoami"></span></div><br /><br />
-			<button id='logout' class="btn btn-block">Se deconnecter</button>
-		</div>

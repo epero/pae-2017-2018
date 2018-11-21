@@ -1,9 +1,0 @@
-$(function() {
-
-	FrontEnd.onDisplayPage('pageDashboard', function(){
-		$('#whoami').text(whoami.prenom +" " + whoami.nom);
-	});
-	
-	
-
-});

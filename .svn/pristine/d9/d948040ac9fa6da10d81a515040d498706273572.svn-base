@@ -1,5 +1,0 @@
-package biz.contact;
-
-public interface ContactDto {
-
-}

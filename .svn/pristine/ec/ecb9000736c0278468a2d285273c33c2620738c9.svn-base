@@ -1,5 +1,0 @@
-package biz_ucc;
-
-public interface UserUCC {
-
-}

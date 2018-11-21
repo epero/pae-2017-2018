@@ -1,8 +1,0 @@
-package biz.factory;
-
-import biz.user.UserDTO;
-
-public interface BizFactory {
-
-  UserDTO getUser();
-}

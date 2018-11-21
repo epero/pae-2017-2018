@@ -1,7 +1,0 @@
-tv.TvFactory = tv.RealTvFactory
-
-#Config
-
-#DAL properties
-
-#Dependancy injection

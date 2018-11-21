@@ -1,3 +1,0 @@
-Apr 13, 2018 12:42:50 PM ihm.servlet.Main main - INFO:   Lancement du serveur
-Apr 13, 2018 12:42:50 PM util.AppContext loadProps - INFO:   run du fichier properties par défaut (dev.properties)
-Apr 13, 2018 12:42:51 PM ihm.servlet.Main startServer - INFO:   Serveur démarré

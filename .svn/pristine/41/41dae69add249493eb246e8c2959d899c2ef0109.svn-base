@@ -1,5 +1,0 @@
-package biz.entreprise;
-
-public class EntrepriseImpl implements EntrepriseDto {
-
-}

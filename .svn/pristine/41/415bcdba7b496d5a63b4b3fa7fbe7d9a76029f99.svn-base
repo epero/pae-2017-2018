@@ -1,8 +1,0 @@
-package dal.dao;
-
-import biz.user.UserDto;
-
-public interface UserDao {
-
-  public UserDto getUser(String pseudo);
-}

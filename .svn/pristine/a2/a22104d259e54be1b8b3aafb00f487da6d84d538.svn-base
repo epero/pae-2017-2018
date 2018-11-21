@@ -1,7 +1,0 @@
-package biz.entreprise;
-
-public interface EntrepriseBiz extends EntrepriseDto {
-
-
-
-}

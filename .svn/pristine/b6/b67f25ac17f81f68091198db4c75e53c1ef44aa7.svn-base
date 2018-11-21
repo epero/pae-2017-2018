@@ -1,8 +1,0 @@
-package biz.user;
-
-interface UserBiz extends UserDTO {
-
-  // méthodes business
-  boolean verifierMotDePasse(String mdp);
-
-}

@@ -1,7 +1,0 @@
-package dal.dao;
-
-public interface DaoGenerique {
-
-  public Object insert(Object object);
-
-}

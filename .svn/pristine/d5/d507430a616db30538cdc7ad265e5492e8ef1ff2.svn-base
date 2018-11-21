@@ -1,5 +1,0 @@
-#Dependancy injection
-biz.ucc.UserUcc = biz.ucc.UserUccImpl
-dal.services.DalServices = dal.services.DalServicesImpl
-biz.factory.BizFactory = biz.factory.BizFactoryImpl
-dal.dao.UserDao = dal.dao.MockUserDaoImpl
