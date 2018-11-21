@@ -1,0 +1,27 @@
+package dal.dao;
+
+import biz.factory.BizFactory;
+import biz.stage.StageDto;
+import util.AppContext.DependanceInjection;
+
+public class MockStageDaoImpl implements StageDao {
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Override
+  public StageDto getStage(int idUtilisateur) {
+    if (idUtilisateur == 1) {
+      return factory.getStageVide();
+    }
+    return null;
+
+  }
+
+  @Override
+  public StageDto insertStage(StageDto stage) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+}

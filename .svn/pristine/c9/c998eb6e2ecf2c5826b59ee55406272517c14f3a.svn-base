@@ -1,0 +1,72 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+import biz.pdc.PersonneContactBiz;
+import biz.pdc.PersonneContactDto;
+import biz.uow.UnitOfWork;
+import dal.dao.EntrepriseDao;
+import dal.dao.PersonneContactDao;
+import exceptions.BizException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class PersonneContactUccImpl implements PersonneContactUcc {
+
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @DependanceInjection
+  private UnitOfWork unitOfWork;
+
+  @Override
+  public List<PersonneContactDto> visualiserPersonnesContact(int idEntreprise) {
+    List<PersonneContactDto> personnesContactDto;
+
+    unitOfWork.startTransBiz();
+    EntrepriseDto entrepriseAVerifier = entrepriseDao.getEntreprise(idEntreprise);
+    if (entrepriseAVerifier == null) {
+      throw new BizException("L'entreprise n'existe pas");
+    }
+    personnesContactDto = personneContactDao
+        .listerPersonnesContactByIdEntreprise(entrepriseAVerifier.getIdEntreprise());
+    unitOfWork.commitTransBiz();
+
+    return personnesContactDto;
+  }
+
+  public PersonneContactDto creerPersonneContact(PersonneContactDto personneContact) {
+    Util.checkObject(personneContact);
+    // PersonneContactBiz personneContactAVerif = (PersonneContactBiz) personneContact;
+    Util.checkFormatString(personneContact.getNom(), PersonneContactBiz.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(personneContact.getPrenom(), PersonneContactBiz.MAX_CARACTERES_PRENOM,
+        "Le format du prénom est incorrect");
+    Util.checkFormatString(personneContact.getTel(), PersonneContactBiz.MAX_CARACTERES_TEL,
+        PersonneContactBiz.REGEX_TEL, "Le format du tel est incorrect");
+    Util.checkFormatString(personneContact.getEmail(), PersonneContactBiz.MAX_CARACTERES_EMAIL,
+        PersonneContactBiz.REGEX_EMAIL, "Le format de l'email est incorrect");
+    personneContact.setNumVersion(1);
+
+    unitOfWork.startTransBiz();
+    EntrepriseDto entrepriseDb = entrepriseDao.getEntreprise(personneContact.getEntreprise());
+    if (entrepriseDb == null) {
+      throw new BizException("L'entreprise n'existe pas");
+    }
+    // TODO modifier cid
+    unitOfWork.insert(personneContact, personneContact.getIdPersonneContact());
+    unitOfWork.commitTransBiz();
+    return personneContact;
+  }
+
+  @Override
+  public List<PersonneContactDto> visualiserResponsablesStage() {
+    unitOfWork.startTransBiz();
+    List<PersonneContactDto> responsables = personneContactDao.getResponsablesStage();
+    unitOfWork.commitTransBiz();
+    return responsables;
+  }
+}

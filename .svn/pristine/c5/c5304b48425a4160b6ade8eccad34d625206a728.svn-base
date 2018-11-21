@@ -1,0 +1,182 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import biz.contact.ContactDto;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+import exceptions.BizException;
+import exceptions.FatalException;
+import exceptions.OptimisticLockException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class ContactUccImplTest {
+  @DependanceInjection
+  private ContactUcc contactUcc;
+  @DependanceInjection
+  private BizFactory factory;
+
+  private ContactDto contactAVerif;
+  private UserDto user;
+  private EntrepriseDto entreprise;
+  private PersonneContactDto personneContact;
+  List<ContactDto> listeContacts;
+  private ContactDto contact;
+
+  // TODO Test concernant la méthode d'incrémentation du nb_contacts
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+    contactAVerif = factory.getContactVide();
+    user = factory.getUserVide();
+    entreprise = factory.getEntrepriseVide();
+    personneContact = factory.getPersonneContactVide();
+    listeContacts = new ArrayList<>();
+    contact = factory.getContactVide();
+    contact.setAnneeAcademique("2017-2018");
+
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateur1() {
+    contactUcc.creerContactUtilisateur(-1, 0, 2, 1);
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateur2() {
+    contactUcc.creerContactUtilisateur(1, 0, -1, 1);
+  }
+
+  @Test(expected = BizException.class)
+  public void testCreerContactUtilisateur3() {
+
+    contactUcc.creerContactUtilisateur(1, 0, 1, 1);
+  }
+
+  @Test(expected = BizException.class)
+  public void testCreerContactUtilisateur4() {
+    contactUcc.creerContactUtilisateur(1, 0, 2, 2);
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateur5() {
+    contactUcc.creerContactUtilisateur(Integer.MAX_VALUE, 0, 2, 1);
+  }
+
+  @Test
+  public void testCreerContactUtilisateur6() {
+    assertNotNull(contactUcc.creerContactUtilisateur(2, 0, 1, 1));
+  }
+
+  @Test
+  public void testCreerContactUtilisateur7() {
+    assertNotNull(contactUcc.creerContactUtilisateur(2, 0, 1, null));
+  }
+
+  @Test(expected = BizException.class)
+  public void testCreerContactUtilisateur8() {
+    assertNotNull(contactUcc.creerContactUtilisateur(99999, 0, 1, null));
+  }
+
+
+  @Test(expected = BizException.class)
+  public void testListerContactUtilisateur1() {
+    contactUcc.listerContactUtilisateur(99999);
+  }
+
+  // @Test(expected = BizException.class)
+  // public void testListerContactUtilisateur2() {
+  // user.setIdUtilisateur(-1);
+  // contactUcc.listerContactUtilisateur(user);
+  // }
+
+  @Test
+  public void testListerContactUtilisateur3() {
+    listeContacts = contactUcc.listerContactUtilisateur(15);
+    assertTrue(listeContacts.isEmpty());
+  }
+
+  @Test
+  public void testListerContactUtilisateur4() {
+    listeContacts = contactUcc.listerContactUtilisateur(16);
+    assertTrue(!listeContacts.isEmpty());
+  }
+
+  // Test pour parcourir l'entiereté de la methode 'listerContactUtilisateur(UserDto)'
+  // @Test(expected = CeciNestPasUneException.class)
+  @Test(expected = FatalException.class)
+  public void testListerContactUtilisateur5() {
+    listeContacts = contactUcc.listerContactUtilisateur(17);
+  }
+
+  // test si liste en param est null
+  @Test(expected = FatalException.class)
+  public void testUpdateEtatContacts1() {
+    listeContacts = null;
+    contactUcc.updateEtatContacts(listeContacts, 0, 0);
+  }
+
+  // test si liste en param est vide
+  @Test(expected = BizException.class)
+  public void testUpdateEtatContacts2() {
+    contactUcc.updateEtatContacts(listeContacts, 0, 0);
+  }
+
+  // test si id user en param existe
+  @Test(expected = BizException.class)
+  public void testUpdateEtatContacts3() {
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 99999, 0);
+  }
+
+  // test si (id) user en param correspond a un user administrateur(=prof)
+  @Test(expected = BizException.class)
+  public void testUpdateEtatContacts4() {
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 777, 0);
+  }
+
+  // test si (id) user en param a bien l'annee academique == annee academique courante
+  @Test(expected = BizException.class)
+  public void testUpdateEtatContacts5() {
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 778, 0);
+  }
+
+  // test si (id) user en param a bien num version == num version en param
+  @Test(expected = OptimisticLockException.class)
+  public void testUpdateEtatContacts6() {
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 779, -1);
+  }
+
+  // test si les contacts dans la liste de contacts en param ont bien num version == num version de
+  // la "db"
+  @Test(expected = OptimisticLockException.class)
+  public void testUpdateEtatContacts7() {
+    contact.setNumVersion(-1);
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 779, 0);
+  }
+
+  // test si les contacts dans la liste de contacts en param ont bien num version == num version de
+  // la "db"
+  @Test(expected = OptimisticLockException.class)
+  public void testUpdateEtatContacts8() {
+    listeContacts.add(contact);
+    contactUcc.updateEtatContacts(listeContacts, 779, 0);
+  }
+
+
+
+}

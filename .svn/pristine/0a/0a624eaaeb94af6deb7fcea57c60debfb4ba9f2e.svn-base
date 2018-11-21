@@ -1,0 +1,44 @@
+package dal.services;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+import ihm.servlet.Prop;
+
+public class DALServicesImpl {
+
+  private Connection conn = null;
+
+  public DALServicesImpl() {
+
+    // Chargement du fichier properties
+    Properties props = new Prop().getProps();
+
+    // Vérification du driver postgreSQL
+    try {
+      Class.forName(props.getProperty("driverClassName"));
+    } catch (ClassNotFoundException ex) {
+      System.out.println("Driver Postgresql manquant !");
+      System.exit(1);
+    }
+    System.out.println("Driver PostgreSQL chargé");
+
+    // Connexion à la base de données
+    try {
+      conn = DriverManager.getConnection(props.getProperty("url"), props.getProperty("ndcDB"),
+          props.getProperty("mdpDB"));
+    } catch (SQLException ex) {
+      System.out.println("Erreur de connexion à la base de données");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  public PreparedStatement getPrepareStatement(String query) throws SQLException {
+
+    PreparedStatement ps = conn.prepareStatement(query);
+    return ps;
+  }
+}

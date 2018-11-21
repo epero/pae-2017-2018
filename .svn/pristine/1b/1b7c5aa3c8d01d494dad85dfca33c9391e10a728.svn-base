@@ -1,0 +1,47 @@
+package util;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+public interface Util {
+
+  static void checkObject(Object o) {
+    if (o == null)
+      throw new IllegalArgumentException();
+  }
+
+  static void checkString(String s) {
+    checkObject(s);
+    if (s.matches("\\s*"))
+      throw new IllegalArgumentException("La chaîne ne peut pas être vide");
+  }
+
+  static void checkNumerique(String s) {
+    checkString(s);
+    try {
+      Long.parseLong(s);
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("La chaîne doit être un argument valide");
+    }
+  }
+
+  static void checkPositiveOrZero(double nombre) {
+    if (nombre < 0)
+      throw new IllegalArgumentException("La valeur ne peut pas être négative");
+  }
+
+  static void checkPositive(double nombre) {
+    if (nombre <= 0)
+      throw new IllegalArgumentException("La valeur ne peut pas être négative ou nulle");
+  }
+
+  static String hashpw(String mdp) {
+    checkString(mdp);
+    return BCrypt.hashpw(mdp, BCrypt.gensalt());
+  }
+
+  static boolean checkpw(String mdp, String mdpHashed) {
+    checkString(mdp);
+    checkString(mdpHashed);
+    return BCrypt.checkpw(mdp, mdpHashed);
+  }
+}

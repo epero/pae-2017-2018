@@ -1,0 +1,343 @@
+package dal.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import exceptions.OptimisticLockException;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+
+class UserDaoImpl extends DaoGeneriqueImpl implements UserDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendService;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  @DependanceInjection
+  private DaoUtil daoUtil;
+
+  @DependanceInjection
+  DaoGenerique daoGenerique;
+
+  private static final String QUERY_GET_USER_PAR_PSEUDO =
+      "SELECT * FROM stagify.utilisateurs WHERE pseudo = ?";
+
+  private static final String QUERY_GET_USER_PAR_ID_UTILISATEUR =
+      "SELECT * FROM stagify.utilisateurs WHERE id_utilisateur = ?";
+
+  private static final String QUERY_GET_ALL_USERS = "SELECT * FROM stagify.utilisateurs u "
+      + "WHERE u.est_admin = false AND u.annee_academique = ? ";
+
+  private static final String QUERY_UPDATE_USER = "UPDATE stagify.utilisateurs "
+      + "SET nom = ?, prenom = ?, date_naissance = ?, tel = ?, email = ?,"
+      + " nb_contacts = ?, etat_plus_avance = ?, mdp=?, num_version = num_version+1 "
+      + "WHERE id_utilisateur = ? AND num_version = ?";
+
+  private static final String QUERY_PSEUDO_USER_EXISTE =
+      "SELECT pseudo FROM stagify.utilisateurs WHERE pseudo = ?";
+
+  private static final String QUERY_EMAIL_USER_EXISTE =
+      "SELECT email FROM stagify.utilisateurs WHERE email = ?";
+
+  private static final String QUERY_INSERT_USER = "INSERT INTO stagify.utilisateurs"
+      + "(pseudo, mdp, nom, prenom, date_naissance, tel, email, date_inscription,"
+      + " annee_academique, est_admin, nb_contacts, etat_plus_avance, num_version)"
+      + "VALUES (?,?,?,?,?,?,?,?,?,?,?, ?,?)";
+
+  private static final String QUERY_UPDATE_NOMBRE_CONTACT_ETAT_PLUS_AVANCE =
+      "UPDATE stagify.utilisateurs SET nb_contacts = ?, etat_plus_avance = ?,"
+          + " num_version = num_version+1 WHERE id_utilisateur = ? AND num_version = ?";
+
+  private static final String QUERY_UPDATE_ETAT_PLUS_AVANCE =
+      "UPDATE stagify.utilisateurs SET etat_plus_avance = ?, num_version = num_version+1 "
+          + "WHERE id_utilisateur = ?  AND num_version = ?";
+
+  private static final String QUERY_UPDATE_MDP =
+      "UPDATE stagify.utilisateurs SET mdp = ?, num_version = num_version+1 "
+          + "WHERE id_utilisateur = ?  AND num_version = ?";
+
+  private static final String QUERY_GET_STUDENTS_STATS = "select count(*) total, "
+      + "sum(case when etat_plus_avance = 0 then 1 else 0 end) aucunContact, "
+      + "sum(case when etat_plus_avance = 1 then 1 else 0 end) contactRefuses, "
+      + "sum(case when etat_plus_avance = 2 then 1 else 0 end) contactInities, "
+      + "sum(case when etat_plus_avance = 3 then 1 else 0 end) contactAcceptes, "
+      + "sum(case when etat_plus_avance = 4 then 1 else 0 end) contactStageEnOrdre "
+      + "from stagify.utilisateurs where est_admin = 'f' and annee_academique = ?";
+
+  private static final String QUERY_GET_STUDENTS_STATS_PAR_ID_USER =
+      "select count(*) total, " + "sum(case when etat=0 then 1 else 0 end) contactsInities, "
+          + "sum(case when etat=2 then 1 else 0 end) contactsPris, "
+          + "sum(case when etat=1 then 1 else 0 end) contactsRefuses "
+          + "from stagify.contacts where utilisateur = ?";
+
+  @Override
+  public UserDto getUser(String pseudo) {
+
+    PreparedStatement preparedStatement;
+    UserDto user;
+    List<UserDto> users;
+
+    try {
+      preparedStatement = dalBackendService.getPreparedStatement(QUERY_GET_USER_PAR_PSEUDO);
+      daoUtil.setPreparedStatement(preparedStatement, pseudo);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        user = (UserDto) factory.getUserVide();
+        users = (List<UserDto>) (Object) daoUtil.setResultSet(user.getClass(), resultSet);
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException(
+          "Erreur lors de la récupération de l'utilisateur dans la base de données.");
+    }
+    if (users == null || users.isEmpty()) {
+      return null;
+    }
+    return users.get(0);
+  }
+
+  @Override
+  public UserDto getUser(int idUtilisateur) {
+    PreparedStatement preparedStatement;
+    UserDto user;
+    List<UserDto> users;
+
+    try {
+      preparedStatement = dalBackendService.getPreparedStatement(QUERY_GET_USER_PAR_ID_UTILISATEUR);
+      daoUtil.setPreparedStatement(preparedStatement, idUtilisateur);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        user = (UserDto) factory.getUserVide();
+        users = (List<UserDto>) (Object) daoUtil.setResultSet(user.getClass(), resultSet);
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException(
+          "Erreur lors de la récupération de l'utilisateur dans la base de données.");
+    }
+    if (users == null || users.size() > 1) {
+      throw new FatalException("Erreur de programmation");
+    }
+    if (users.isEmpty()) {
+      return null;
+    }
+    return users.get(0);
+  }
+
+  @Override
+  public List<UserDto> getAllUsers(String anneeAcademique) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_GET_ALL_USERS);
+    daoUtil.setPreparedStatement(ps, anneeAcademique);
+
+    List<UserDto> users;
+
+    try (ResultSet rs = ps.executeQuery()) {
+      UserDto user = factory.getUserVide();
+      users = (List<UserDto>) (Object) daoUtil.setResultSet(user.getClass(), rs);
+
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException(
+          "Erreur lors de la récupération des entreprises dans la base de données.");
+    }
+    return users;
+  }
+
+  public UserDto updateUser(UserDto user) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_UPDATE_USER);
+    Timestamp dateNaissance = Timestamp.valueOf(user.getDateNaissance().atStartOfDay());
+    daoUtil.setPreparedStatement(ps, user.getNom(), user.getPrenom(), dateNaissance, user.getTel(),
+        user.getEmail(), user.getNbContacts(), user.getEtatPlusAvance(), user.getMdp(),
+        user.getIdUtilisateur(), user.getNumVersion());
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        user.setNumVersion(user.getNumVersion() + 1);
+        return user;
+      } else if (codeRetour == 0) {
+        throw new OptimisticLockException(
+            "L'utilisateur a été modifié depuis le chargement de cette page",
+            getUser(user.getIdUtilisateur()));
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur lors de l'accès DB updateUser()");
+    }
+  }
+
+  @Override
+  public boolean pseudoUserExiste(String pseudo) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_PSEUDO_USER_EXISTE);
+    daoUtil.setPreparedStatement(ps, pseudo);
+    try (ResultSet rs = ps.executeQuery()) {
+      if (rs.next()) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur acces Db");
+    }
+  }
+
+  @Override
+  public boolean emailUserExiste(String email) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_EMAIL_USER_EXISTE);
+    daoUtil.setPreparedStatement(ps, email);
+    try (ResultSet resultSet = ps.executeQuery()) {
+      if (resultSet.next()) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur acces Db");
+    }
+  }
+
+  @Override
+  public UserDto insertUser(UserDto user) {
+    UserDto userDto = (UserDto) daoGenerique.insert(user);
+    System.out.println(userDto);
+    return userDto;
+    /*
+     * PreparedStatement ps = dalBackendService.getPreparedStatementForInsert(QUERY_INSERT_USER);
+     * Timestamp dateNaissance = Timestamp.valueOf(user.getDateNaissance().atStartOfDay());
+     * Timestamp dateInscription = Timestamp.valueOf(user.getDateInscription().atStartOfDay());
+     * 
+     * daoUtil.setPreparedStatement(ps, user.getPseudo(), user.getMdp(), user.getNom(),
+     * user.getPrenom(), dateNaissance, user.getTel(), user.getEmail(), dateInscription,
+     * user.getAnneeAcademique(), user.getEstAdmin(), user.getNbContacts(),
+     * user.getEtatPlusAvance(), user.getNumVersion()); try { int codeRetour = ps.executeUpdate();
+     * if (codeRetour == 1) { try (ResultSet generatedKeys = ps.getGeneratedKeys()) { if
+     * (generatedKeys.next()) { // System.out.println(generatedKeys);
+     * user.setIdUtilisateur((generatedKeys.getInt(1))); } } return user; } else { throw new
+     * FatalException("Erreur de programmation"); } } catch (SQLException ex) {
+     * Logger.getLogger("stagifyLogger").fine(ex.getMessage()); throw new
+     * FatalException("Erreur lors de l'accès DB"); }
+     */
+  }
+
+
+
+  @Override
+  public UserDto updateNbrContEtatPlusAvance(UserDto user) {
+    PreparedStatement ps =
+        dalBackendService.getPreparedStatement(QUERY_UPDATE_NOMBRE_CONTACT_ETAT_PLUS_AVANCE);
+    daoUtil.setPreparedStatement(ps, user.getNbContacts(), user.getEtatPlusAvance(),
+        user.getIdUtilisateur(), user.getNumVersion());
+
+    return executeResultSet(user, ps);
+  }
+
+  @Override
+  public UserDto updateEtatPlusAvance(UserDto user) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_UPDATE_ETAT_PLUS_AVANCE);
+    daoUtil.setPreparedStatement(ps, user.getEtatPlusAvance(), user.getIdUtilisateur(),
+        user.getNumVersion());
+
+    return executeResultSet(user, ps);
+  }
+
+
+
+  public UserDto updateMdp(UserDto utilisateur) {
+    PreparedStatement ps = dalBackendService.getPreparedStatement(QUERY_UPDATE_MDP);
+    daoUtil.setPreparedStatement(ps, utilisateur.getMdp(), utilisateur.getIdUtilisateur(),
+        utilisateur.getNumVersion());
+
+    return executeResultSet(utilisateur, ps);
+  }
+
+
+  @Override
+  public HashMap<String, Integer> getStudentsStats(String anneeAcademique) {
+    PreparedStatement preparedStatement;
+    HashMap<String, Integer> stats;
+    try {
+      preparedStatement = dalBackendService.getPreparedStatement(QUERY_GET_STUDENTS_STATS);
+      daoUtil.setPreparedStatement(preparedStatement, anneeAcademique);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        if (resultSet.next()) {
+          stats = new HashMap();
+          stats.put(resultSet.getMetaData().getColumnName(2), resultSet.getInt(2));
+          stats.put(resultSet.getMetaData().getColumnName(3), resultSet.getInt(3));
+          stats.put(resultSet.getMetaData().getColumnName(4), resultSet.getInt(4));
+          stats.put(resultSet.getMetaData().getColumnName(5), resultSet.getInt(5));
+          stats.put(resultSet.getMetaData().getColumnName(6), resultSet.getInt(6));
+        } else {
+          throw new FatalException("Erreur de programmation");
+        }
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur lors de la récupération des stats dans la base de données.");
+    }
+    if (stats == null || stats.isEmpty()) {
+      throw new FatalException("Erreur de programmation");
+    }
+    return stats;
+  }
+
+  @Override
+  public HashMap<String, Integer> getStudentStats(int idUser) {
+    PreparedStatement preparedStatement;
+    HashMap<String, Integer> stats;
+    try {
+      preparedStatement =
+          dalBackendService.getPreparedStatement(QUERY_GET_STUDENTS_STATS_PAR_ID_USER);
+      daoUtil.setPreparedStatement(preparedStatement, idUser);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        if (resultSet.next()) {
+          stats = new HashMap();
+          stats.put(resultSet.getMetaData().getColumnName(2), resultSet.getInt(2));
+          stats.put(resultSet.getMetaData().getColumnName(3), resultSet.getInt(3));
+          stats.put(resultSet.getMetaData().getColumnName(4), resultSet.getInt(4));
+        } else {
+          throw new FatalException("Erreur de programmation");
+        }
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur lors de la récupération des stats dans la base de données.");
+    }
+    if (stats == null || stats.isEmpty()) {
+      throw new FatalException("Erreur de progrmmation");
+    }
+    return stats;
+  }
+
+  private UserDto executeResultSet(UserDto user, PreparedStatement ps) {
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        user.setNumVersion(user.getNumVersion() + 1);
+        return user;
+      } else if (codeRetour == 0) {
+        throw new OptimisticLockException(
+            "L'utilisateur a été modifié depuis le chargement de cette page",
+            getUser(user.getIdUtilisateur()));
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      throw new FatalException("Erreur lors de l'accès DB");
+    }
+  }
+
+
+}

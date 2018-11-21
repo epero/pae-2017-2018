@@ -1,0 +1,18 @@
+package dal.dao;
+
+import biz.user.UserDTO;
+
+public interface UserDAO {
+
+  // public List<UserUCCImpl> getTousLesUtilisateurs();
+
+  // public UserUCCImpl getUtilisateur(int idUtilisateur);
+
+  public UserDTO getUser(String pseudo);
+
+  // public boolean insertUtilisateur(UserUCCImpl utilisateur);
+
+  // public boolean updateUtilisateur(UserUCCImpl utilisateur);
+
+  // public boolean deleteUtilisateur(UserUCCImpl utilisateur);
+}

@@ -1,0 +1,92 @@
+#Config
+JWTSecret = ceciNEstPasUneCleSecrete
+port = 8080
+
+#DAL properties
+driverClassName = org.postgresql.Driver
+url = jdbc:postgresql://studentittools.ipl.be:5432/dbvincent_vanrossem?user=vincent_vanrossem
+ndcDB = vincent.vanrossem
+mdpDB = 7777777
+
+#Dependancy injection
+ihm.servlet.DispatcherServlet = ihm.servlet.DispatcherServlet
+
+ihm.services.UtilService = ihm.services.UtilServiceImpl
+ihm.services.ContactService = ihm.services.ContactServiceImpl
+ihm.services.EntrepriseService = ihm.services.EntrepriseServiceImpl
+ihm.services.PersonneContactService = ihm.services.PersonneContactServiceImpl
+ihm.services.StageService = ihm.services.StageServiceImpl
+ihm.services.UserService = ihm.services.UserServiceImpl
+
+biz.ucc.UserUcc = biz.ucc.UserUccImpl
+biz.ucc.PersonneContactUcc = biz.ucc.PersonneContactUccImpl
+biz.ucc.EntrepriseUcc = biz.ucc.EntrepriseUccImpl
+biz.ucc.ContactUcc = biz.ucc.ContactUccImpl
+biz.ucc.StageUcc = biz.ucc.StageUccImpl
+biz.user.UserDto = biz.user.UserImpl
+
+[Lbiz.contact.ContactDto = [Lbiz.contact.ContactImpl;
+biz.entreprise.EntrepriseDto = biz.entreprise.EntrepriseImpl
+biz.pdc.PersonneContactDto = biz.pdc.PersonneContactImpl
+biz.user.UserBiz = biz.user.UserImpl
+biz.contact.ContactDto = biz.contact.ContactImpl
+biz.stage.StageDto = biz.stage.StageImpl
+biz.factory.BizFactory = biz.factory.BizFactoryImpl
+
+dal.dao.DaoGenerique = dal.dao.DaoGeneriqueImpl
+dal.dao.UserDao = dal.dao.UserDaoImpl
+dal.dao.PersonneContactDao = dal.dao.PersonneContactDaoImpl
+dal.dao.EntrepriseDao = dal.dao.EntrepriseDaoImpl
+dal.dao.ContactDao = dal.dao.ContactDaoImpl
+dal.dao.StageDao = dal.dao.StageDaoImpl
+dal.services.DalBackendServices = dal.services.DalServicesImpl
+dal.services.DalServices = dal.services.DalServicesImpl
+
+biz.uow.UnitOfWork = biz.uow.UnitOfWorkImpl
+
+util.AppContext = util.AppContext
+util.Util = util.Util
+util.DaoUtil = util.DaoUtil
+
+#query ContactDao
+query_get_contact = SELECT C.id_contact,C.utilisateur, C.entreprise,C.personne_contact,C.etat,C.annee_academique, E.id_entreprise, E.denomination,E.adresse,E.numero,E.boite, E.code_postal,E.ville,E.email,E.tel,E.est_black_liste, PC.id_personne_contact,PC.nom,PC.prenom,PC.tel,PC.email, PC.entreprise,C.num_version, E.num_version, PC.num_version, E.est_supprime FROM stagify.entreprises E,stagify.contacts C LEFT OUTER JOIN stagify.personnes_contact PC ON PC.id_personne_contact=C.personne_contact WHERE C.entreprise=E.id_entreprise AND C.id_contact=?
+query_get_contacts = SELECT C.id_contact,C.utilisateur, C.entreprise,C.personne_contact,C.etat,C.annee_academique, E.id_entreprise, E.denomination,E.adresse,E.numero,E.boite,E.code_postal,E.ville,E.email,E.tel,E.est_black_liste,PC.id_personne_contact,PC.nom,PC.prenom,PC.tel,PC.email,PC.entreprise,C.num_version, E.num_version, PC.num_version, E.est_supprime FROM stagify.entreprises E,stagify.contacts C LEFT OUTER JOIN stagify.personnes_contact PC ON PC.id_personne_contact=C.personne_contact WHERE C.utilisateur=? AND C.entreprise=E.id_entreprise AND C.etat=?
+query_lister_contact_utilisateur = SELECT C.id_contact,C.utilisateur,C.entreprise,C.personne_contact,C.etat,C.annee_academique,E.id_entreprise, E.denomination,E.adresse,E.numero,E.boite,E.code_postal,E.ville,E.email,E.tel,E.est_black_liste,PC.id_personne_contact,PC.nom,PC.prenom,PC.tel,PC.email,PC.entreprise,C.num_version, E.num_version, PC.num_version,E.est_supprime  FROM stagify.entreprises E,stagify.contacts C LEFT OUTER JOIN stagify.personnes_contact PC ON PC.id_personne_contact=C.personne_contact WHERE C.utilisateur=? AND C.entreprise=E.id_entreprise
+query_insert_contact_utilisateur = INSERT INTO stagify.contacts(utilisateur, entreprise, personne_contact, etat, annee_academique, num_version)VALUES(?, ?, ?, ?, ?, ?)
+query_get_contacts_entreprise = SELECT C.id_contact,C.utilisateur,C.entreprise,C.personne_contact,C.etat,C.annee_academique, C.num_version FROM stagify.contacts C WHERE C.entreprise=?
+query_lister_contact_different_de_etat = SELECT * FROM stagify.contacts WHERE utilisateur=? AND etat!=?
+query_existe_contact_for_entreprise_et_user = SELECT entreprise FROM stagify.contacts WHERE utilisateur = ? AND entreprise = ?
+query_update_etat_contact = UPDATE stagify.contacts SET etat=?, num_version=num_version+1 WHERE id_contact=? AND num_version=?
+query_existe_contact_avec_etat = SELECT count(*) FROM stagify.contacts WHERE utilisateur=? AND etat=?
+query_existe_contact_accepte_ou_en_ordre = SELECT * FROM stagify.contacts WHERE utilisateur = ? AND (etat = 4 OR etat = 3)
+query_update_entreprise_contact = UPDATE stagify.contacts SET entreprise=?, num_version=num_version+1 WHERE id_contact=? AND num_version=?
+
+#query EntrepriseDao
+query_get_all_entreprises = SELECT * FROM stagify.entreprises WHERE est_supprime=false
+query_get_all_entreprises_with_number_of_students = SELECT e.id_entreprise, e.denomination, e.adresse, e.numero, e.boite,e.code_postal, e.ville, e.email, e.tel, e.est_black_liste,e.est_supprime, e.num_version, COUNT(s.utilisateur) as \"Etudiants en stage\" FROM stagify.entreprises e LEFT OUTER JOIN stagify.stages s ON e.id_entreprise = s.entreprise AND s.annee_academique = ? WHERE e.est_supprime=false GROUP BY e.id_entreprise, e.denomination, e.adresse, e.numero, e.boite, e.code_postal, e.ville, e.email, e.tel, e.est_black_liste, e.num_version
+query_denmination_entrprise_existe = SELECT count(*) FROM stagify.entreprises WHERE denomination=? and est_supprime=false
+query_get_annees_academiques = SELECT DISTINCT u.annee_academique FROM stagify.utilisateurs u WHERE u.est_admin = false ORDER BY u.annee_academique DESC
+
+#query PersonneContactDao
+query_get_personnes_contact_by_id_entreprise = SELECT pc.id_personne_contact, pc.nom, pc.prenom, pc.tel, pc.email, pc.entreprise, pc.num_version FROM stagify.personnes_contact pc WHERE pc.entreprise = ?
+query_personne_de_contact_appartient_entreprise = SELECT * FROM stagify.personnes_contact WHERE id_personne_contact = ? AND entreprise = ?
+query_get_responsables_stage = SELECT DISTINCT pc.id_personne_contact, pc.nom, pc.prenom, pc.tel, pc.email, pc.entreprise, pc.num_version, e.id_entreprise, e.denomination, e.adresse, e.numero, e.boite, e.code_postal, e.ville, e.email, e.tel, e.est_black_liste, e.num_version, e.est_supprime FROM stagify.personnes_contact pc, stagify.stages s, stagify.entreprises e WHERE s.responsable = pc.id_personne_contact AND s.entreprise = e.id_entreprise
+query_update_enptreprise_personne_contact = UPDATE stagify.personnes_contact SET entreprise=?,num_version=num_version+1 WHERE id_personne_contact=? AND num_version=?
+
+#query StageDao
+query_get_stage = SELECT s.id_stage, s.utilisateur, s.annee_academique, s.date_signature, s.adresse, s.numero, s.boite, s.code_postal, s.ville, s.num_version, pc.id_personne_contact AS \"pc id\", pc.nom AS \"pc nom\", pc.prenom AS \"pc prenom\", pc.tel AS \"pc tel\", pc.email AS \"pc email\", pc.num_version AS \"pc num_version\", e.id_entreprise AS \"e id\", e.denomination AS \"e denomination\", e.adresse AS \"e adresse\", e.numero AS \"e numero\", e.boite AS \"e boite\", e.code_postal AS \"e code_postal\", e.ville AS \"e ville\", e.email AS \"e email\", e.tel AS \"e tel\", e.est_black_liste AS \"e est_black_liste\",e.num_version AS \"e num_version\", e.est_supprime AS \"e est_supprime\" FROM stagify.stages s, stagify.personnes_contact pc, " + "stagify.entreprises e WHERE s.utilisateur = ?" + " AND s.responsable = pc.id_personne_contact AND s.entreprise = e.id_entreprise
+query_lister_stages_entreprises = SELECT id_stage, annee_academique, date_signature,adresse, numero, boite, code_postal, ville,responsable,entreprise,utilisateur,num_version FROM stagify.stages WHERE entreprise=?
+query_update_entreprise_stage = UPDATE stagify.stages SET entreprise=?,num_version=num_version+1 WHERE id_stage=? AND num_version=?
+
+#query UserDao
+query_get_user_par_pseudo = SELECT * FROM stagify.utilisateurs WHERE pseudo = ?
+query_get_all_users = SELECT * FROM stagify.utilisateurs u WHERE u.est_admin = false AND u.annee_academique = ?
+query_pseudo_user_existe = SELECT pseudo FROM stagify.utilisateurs WHERE pseudo = ?
+query_get_student_stats = select count(*) total, sum(case when etat_plus_avance = 0 then 1 else 0 end) aucunContact, sum(case when etat_plus_avance = 1 then 1 else 0 end) contactRefuses, sum(case when etat_plus_avance = 2 then 1 else 0 end) contactInities, sum(case when etat_plus_avance = 3 then 1 else 0 end) contactAcceptes, sum(case when etat_plus_avance = 4 then 1 else 0 end) contactStageEnOrdre from stagify.utilisateurs where est_admin = 'f' and annee_academique = ?
+query_get_students_stats_par_id_user = select count(*) total, sum(case when etat=0 then 1 else 0 end) contactsInities, sum(case when etat=2 then 1 else 0 end) contactsPris, sum(case when etat=1 then 1 else 0 end) contactsRefuses from stagify.contacts where utilisateur = ?
+query_email_user_existe = SELECT email FROM stagify.utilisateurs WHERE email = ?
+
+#constantes DaoGenerique
+null_indicator = _NULL_
+traduction_user_dto = UtilisateurImpl
+traduction_pdc_dto = personnes_contact

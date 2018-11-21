@@ -1,0 +1,60 @@
+package dal.dao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+
+public class MockEntrepriseDaoImpl implements EntrepriseDao {
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Override
+  public List<EntrepriseDto> getAllEntreprises() {
+    List<EntrepriseDto> entreprises = new ArrayList<>();
+    return entreprises;
+  }
+
+  @Override
+  public EntrepriseDto getEntreprise(int idEntreprise) {
+    if (idEntreprise == -1) {
+      throw new FatalException();
+    } else if (idEntreprise == 9999999) {
+      return null;
+    }
+    EntrepriseDto entrepriseDto = factory.getEntrepriseVide();
+    entrepriseDto.setIdEntreprise(idEntreprise);
+    return entrepriseDto;
+  }
+
+  @Override
+  public EntrepriseDto blacklistEntreprise(EntrepriseDto entreprise) {
+    return null;
+  }
+
+  @Override
+  public EntrepriseDto insertEntreprise(EntrepriseDto entreprise) {
+    if (entreprise.getIdEntreprise() % 2 == 0) {
+      return null;
+    } else {
+      return entreprise;
+    }
+  }
+
+  @Override
+  public boolean denominationEntrepriseExiste(String denomination) {
+    return denomination.equals("Bosh");
+  }
+
+  @Override
+  public List<HashMap<String, Object>> getAllEntreprisesWithNumberOfStudents(
+      String anneeAcademique) {
+    return null;
+
+  }
+
+
+}

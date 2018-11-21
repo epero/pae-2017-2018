@@ -1,0 +1,14 @@
+package exceptions;
+
+public class OptimisticLockException extends RuntimeException {
+
+  public OptimisticLockException() {
+    // TODO Auto-generated constructor stub
+  }
+
+  public OptimisticLockException(String message) {
+    super(message);
+    // TODO Auto-generated constructor stub
+  }
+
+}

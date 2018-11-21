@@ -1,0 +1,16 @@
+package biz.contact;
+
+import biz.user.UserDto;
+
+public class ContactImpl implements ContactDto {
+  // on garde les objets reference egalement mais on peut les laisser vide
+  private int idContact;
+  private int utilisateur;
+  private UserDto utilisateurDto;
+  private int entreprise;
+  // private EntrepriseDto entrepriseDto;
+  private int personneContact;
+  // private PersonneContactDto personneContactDto;
+  private String etat;
+  private String anneeAcademique;
+}

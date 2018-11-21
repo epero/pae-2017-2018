@@ -1,0 +1,9 @@
+package dal.services;
+
+import java.sql.PreparedStatement;
+
+public interface DalServices {
+
+  public PreparedStatement getPreparedStatement(String query);
+
+}

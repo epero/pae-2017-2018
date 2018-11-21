@@ -1,0 +1,388 @@
+var dtEntreprises;
+var dtPersonnesContact;
+
+let idEntreprise = null;
+let idPersonneContact = null;
+let denominationEntreprise = null;
+let nomPersonneContact = null;
+
+FrontEnd.onInitPage('pageEntreprises', function() {
+	console.log('onInitPage - pageEntreprises');
+	dtEntreprises = $('#dtEntreprises').DataTable({
+		bAutoWidth : false,
+
+		info : false,
+
+		language : {
+			"search" : "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_ entrées",
+			"paginate": {
+				"first":      "Premier",
+				"last":       "Dernier",
+				"next":       "Suivant",
+				"previous":   "Précédent"
+			}
+		},
+		select : {
+			style : 'single',
+			info : false
+		},
+		data : "",
+		columns : [ {
+			"data" : "denomination"
+		}, {
+			"data" : "ville"
+		},
+		//{"data" : "email"},
+		//{ "data" : "tel"},
+		{
+			"data" : "estBlackListe"
+		} ],
+		rowId : 'idEntreprise'
+	});
+
+	dtPersonnesContact = $('#dtPersonnesContact').DataTable({
+		destroy : true,
+		autoWidth : true,
+
+		//paging : false,
+		//searching : false,
+
+		info : false,
+		language : {
+			"search" : "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_ entrées",
+			"paginate": {
+				"first":      "Premier",
+				"last":       "Dernier",
+				"next":       "Suivant",
+				"previous":   "Précédent"
+			}
+		},
+		info : false,
+		select : {
+			style : 'single',
+		},
+		data : "",
+		columns : [ {
+			"data" : "nom"
+		}, {
+			"data" : "prenom"
+		}, {
+			"data" : "email"
+		}, {
+			"data" : "tel"
+		} ],
+		rowId : 'idPersonneContact'
+	});
+	
+	$('<button id="addRow" class="btn btn-lg bg-cyan waves-effect">Ajouter une Personne de Contact</button><button id="btnAddPersonContact" class="btn btn-lg bg-cyan waves-effect" style="display:none" type="submit">Ajouter</button><button id="btnCancelAddPersonContact" style="display:none" class="btn btn-lg bg-grey waves-effect" type="reset">Annuler</button>').insertAfter('#dtPersonnesContact');
+
+      // add row
+	  $('#addRow').click(function() {
+	    //t.row.add( [1,2,3] ).draw();
+	    var rowHtml = $("#newRow").find("tr")[0].outerHTML
+	    $('#btnAddPersonContact').show();
+	    $('#btnCancelAddPersonContact').show();
+	    $('#addRow').hide();
+	    console.log(rowHtml);
+	    dtPersonnesContact.row.add($(rowHtml)).draw();
+	    
+	  });
+	  
+	  $('#btnCancelAddPersonContact').on('click', function(){
+	    $('#btnAddPersonContact').hide();
+	    $('#btnCancelAddPersonContact').hide();
+	    $('#addRow').show();
+	  });
+	  
+	  $('#btnAddPersonContact').on('click', function(){
+		var isvalid = $('#formNewPersonneContact').valid();
+		console.log(isvalid);
+		var json = JSON.parse(myApp.form2Json($('#formNewPersonneContact')));
+		//Ajout de l'id entreprise dans JSON
+		json.entreprise = idEntreprise; 
+		var dataJson = JSON.stringify(json);
+	
+		if(isvalid){
+	
+			config = {
+				'data': {
+					'action': 'creerPersonneContact',
+					'newPersonneContact': dataJson,
+					'idEntreprise': idEntreprise
+				},
+				'success': function(reponse){
+					if(reponse === null){
+						$('.notification').html('<div class="alert alert-dismissible bg-red text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Veuillez remplir correctement le formulaire</div>');
+					} else {
+						
+						$('#dtPersonnesContact').DataTable().row.add( {
+							"nom": json.nom,
+							"prenom": json.prenom,
+							"email": json.email,
+							"tel": json.tel
+						 } ).draw();
+	
+						$(".new-contact-form").css('display', 'none');
+						$("#btnAddRow").css('display', 'block');
+						$(".notificationPDCAjoute").html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>La personne de contact a été ajouté avec succès</div>');
+					}
+				}
+			}
+			myApp.myajax(config);
+		}
+	});
+
+	dtEntreprises.on('select', function(e, dt) {
+		console.log(dt.id());
+		idEntreprise = dt.id();
+		//console.log("Dénomination " + dtEntreprises.fnGetData('denomination'));
+
+		var idx = dt.cell('.selected', 0).index();
+		var data = dt.row( idx.row ).data();
+		denominationEntreprise = data.denomination;
+
+		$('#pageEntreprises').removeClass();
+		$('#pageEntreprises').toggleClass("col-lg-4 col-md-5 col-sm-6 col-xs-6");
+		$('#pagePersonnesContact').css('display', 'block');		
+		remplirPersonnesContact(dt.id());
+	});
+
+	dtEntreprises.on('deselect', function(e, dt, type, indexes) {
+		$('#pageEntreprises').removeClass();
+		$('#pageEntreprises').toggleClass("col-lg-12 col-md-12 col-sm-12 col-xs-12")
+		$('#pagePersonnesContact').css('display', 'none');
+		idEntreprise = null;
+		denominationEntreprise = null;		
+	});
+
+	dtPersonnesContact.on('select', function(e, dt) {
+		console.log(dt.id());
+		idPersonneContact = dt.id();
+
+		var idx = dt.cell('.selected', 0).index();
+		var data = dt.row( idx.row ).data();
+		nomPersonneContact = data.prenom + " " + data.prenom;
+		// pour la partie initier un contact avec/sans personne de contact
+	});
+
+	dtPersonnesContact.on('deselect', function(e, dt, type, indexes) {
+		idPersonneContact = null;
+		nomPersonneContact = null;
+		
+		// pour la partie initier un contact avec/sans personne de contact
+	});
+	
+	//Jquery validation règles & messages
+	$("#formNewPersonneContact").validate({
+		rules: {
+			nom: {
+				required: true,
+				minlength: 1,
+				maxlength: 50
+			},
+			prenom: {
+				required: true,
+				minlength: 1,
+				maxlength: 30,
+			},
+			email: {
+				required: true,
+				minlength: 1,
+				maxlength: 50,
+				mailVerif: true
+			},
+			tel: {
+				required: true,
+				minlength: 1,
+				maxlength: 15,
+				telVerif: true
+			}
+		},
+		messages: {
+			nom: "Veuillez indiquer un nom",
+			prenom: "Veuillez indiquer un prénom",
+			email: {
+				required: "Veuillez indiquer un mail",
+				mailVerif: "Veuillez indiquer un mail valide",
+			},
+			tel: {
+				required: "Veuillez indiquer un téléphone",
+				telVerif: "Veuillez indiquer un téléphone valide",
+			},
+		},
+		highlight: function (input) {
+	        $(input).parents('.form-line').addClass('error');
+	    },
+	    unhighlight: function (input) {
+	        $(input).parents('.form-line').removeClass('error');
+	    },
+	    errorPlacement: function (error, element) {
+	        $(element).parents('.form-group').append(error);
+	    }
+	});
+});
+
+FrontEnd.onDisplayPage('pageEntreprises', function() {
+	$('body').removeClass().toggleClass('theme-teal');
+	showNavBar();
+	console.log('onDisplayPage - pageEntreprises');
+	remplirEntreprises();
+});
+
+FrontEnd.onLeavePage('pageEntreprises', function() {
+	$('#pagePersonnesContact').css('display', 'none');
+});
+	
+$('.nav-entreprise').on('click', function(){
+	$('#pageEntreprises').removeClass();
+	$('#pageEntreprises').toggleClass("col-lg-12 col-md-12 col-sm-12 col-xs-12")
+});
+
+$('#btnAddRow').on('click', function () {
+	$("#newPersonneContactForm").css('display', 'block');
+	//$("#btnAddRow").css('display', 'none');
+	//$("#btnAddContact").hide();
+	$("#btnsContactEntreprises").hide();
+});
+
+$('#btnCancelAddPersonContact').on('click', function() {
+	$("#newPersonneContactForm").css('display', 'none');
+	//$("#btnAddRow").css('display', 'block');
+	$("#btnsContactEntreprises").show();
+	$("#formNewPersonneContact").validate().resetForm();
+	$('.form-line').removeClass('error focused');
+});	
+
+$('#btnAddContact').on('click', function(){
+	$('#btnsContactEntreprises').hide();
+	let textToShow = '';
+	if(idPersonneContact == null){
+		textToShow = 'Vous allez initier un contact avec l\'entreprise ' + denominationEntreprise + '. Il n\'y aura pas de personne de contact';
+	} else {
+		textToShow = 'Vous allez initier un contact avec l\'entreprise ' + denominationEntreprise +'. La personne de contact sera ' + nomPersonneContact + '.';
+	}
+	$('#txtInitiateContact').text(textToShow);
+	$('#confirmInitiateContact').show();
+	
+});
+
+$('#btnCancelAddContact').on('click', function(){
+	$('#confirmInitiateContact').hide();
+	$('#btnsContactEntreprises').show();
+});
+
+$('#btnAddContactConfirm').on('click', function(){
+
+	config = {
+		'data': {
+			'action': 'creerContact',
+			'newContact': JSON.stringify({
+											utilisateur: myApp.getWhoAmI().idUtilisateur,
+											entreprise: idEntreprise,
+											personneContact: idPersonneContact
+										})
+		},
+		'success': function(reponse){
+			$(".notificationPDCAjoute").html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Le contact a été initié avec succès</div>');
+			$('#confirmInitiateContact').hide();
+			$('#btnsContactEntreprises').show();
+		}
+	}
+	myApp.myajax(config);
+});
+
+function remplirEntreprises() {
+	myApp.myajax({
+		data : {
+			'action' : 'visualiserEntreprises',
+		},
+		success : function(data) {
+			console.log(data);
+			//if (!$.isEmptyObject(data)) {
+				dtEntreprises.clear();
+				dtEntreprises.rows.add(data).draw();
+			//}
+		}
+	});
+};
+
+function remplirPersonnesContact(entreprise) {
+	myApp.myajax({
+		data : {
+			'action' : 'visualiserPersonneContact',
+			'idEntreprise' : entreprise
+		},
+		success : function(data) {
+			console.log(data);
+			//if (!$.isEmptyObject(data)) {
+				dtPersonnesContact.clear();
+				dtPersonnesContact.rows.add(data).draw();
+			//}
+		}
+	});
+};
+
+//vérification input email jquery validation
+jQuery.validator.addMethod("mailVerif", function(value, element){
+    return value.match(/^.+@(.+)\..+$/);
+}, 'Veuillez indiquer un mail valide');
+
+//vérification input tel jquery validation
+jQuery.validator.addMethod("telVerif", function(value, element){
+    return value.match(/^\+32[0-9]{8,9}$/);
+}, 'Le numéro doit commencer par +32 et contenir entre 11 et 12 chiffres');
+
+// ancienne version
+/*
+ * function remplirEntreprises() { var dtEntreprises =
+ * $('#dtEntreprises').DataTable({ //retrieve: true, destroy : true, bAutoWidth :
+ * false, paging : false, language: { "search": "Rechercher" }, select : { style :
+ * 'single', info: false },
+ * 
+ * ajax : { type : 'POST', url : '/', dataSrc : "", data : { 'action' :
+ * 'visualiserEntreprises', }, statusCode : { 422 : util.err422, 401 :
+ * util.err401, 500 : util.err500 } }, columns : [ { "data" : "denomination" }, {
+ * "data" : "ville" }, //{"data" : "email"}, //{ "data" : "tel"}, { "data" :
+ * "estBlackListe" } ], rowId : 'idEntreprise' }); };
+ * 
+ * function remplirPersonnesContact(entreprise) { var dtPersonnesContact =
+ * $('#dtPersonnesContact').DataTable({ destroy : true, autoWidth : true, paging :
+ * false, searching: false, info: false, select : { style : 'single', }, ajax : {
+ * type : 'POST', url : '/', dataSrc : "", data : { 'action' :
+ * 'visualiserPersonneContact', 'idEntreprise' : entreprise }, statusCode : {
+ * 422 : util.err422, 401 : util.err401, 500 : util.err500 } }, columns : [ {
+ * "data" : "nom" }, { "data" : "prenom" }, { "data" : "email" }, { "data" :
+ * "tel" } ], rowId : 'idPersonneContact' }); };
+ * 
+ * $(function() {
+ * 
+ * FrontEnd.onInitPage('pageEntreprises', function() { console.log('onInitPage -
+ * pageEntreprises'); });
+ * 
+ * FrontEnd.onDisplayPage('pageEntreprises', function() {
+ * console.log('onDisplayPage - pageEntreprises'); remplirEntreprises(); });
+ * 
+ * FrontEnd.onLeavePage('pageEntreprises', function() {
+ * $('#pagePersonnesContact').css('display', 'none'); });
+ * 
+ * 
+ * $('#dtEntreprises').DataTable().on('select', function(e, dt) {
+ * console.log(dt.id()); $('#pagePersonnesContact').css('display', 'block');
+ * remplirPersonnesContact(dt.id()); });
+ * 
+ * $('#dtEntreprises').DataTable().on('deselect', function(e, dt, type, indexes) {
+ * $('#pagePersonnesContact').css('display', 'none'); });
+ * 
+ * 
+ * $('#dtPersonnesContact').DataTable().on('select', function(e, dt) {
+ * console.log(dt.id()); // pour la partie initier un contact avec/sans personne
+ * de contact });
+ * 
+ * $('#dtPersonnesContact').DataTable().on('deselect', function(e, dt, type,
+ * indexes) { // pour la partie initier un contact avec/sans personne de contact
+ * }); });
+ */

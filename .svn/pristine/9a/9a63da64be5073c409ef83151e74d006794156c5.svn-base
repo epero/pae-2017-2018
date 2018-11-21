@@ -1,0 +1,10 @@
+package dal.dao;
+
+import biz.user.UserDto;
+
+public interface UserDao {
+
+  public UserDto getUser(String pseudo);
+  
+  public UserDto insertUser(UserDto user);
+}

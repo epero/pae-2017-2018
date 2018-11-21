@@ -1,0 +1,18 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.user.UserDto;
+import dal.dao.ContactDao;
+import util.AppContext.DependanceInjection;
+
+public class ContactUccImpl implements ContactUcc {
+  @DependanceInjection
+  private ContactDao contactDao;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    return contactDao.listerContactUtilisateur(utilisateur);
+  }
+
+}

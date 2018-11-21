@@ -1,0 +1,11 @@
+package dal.dao;
+
+public interface DaoGenerique<E> {
+
+  public E insert(E element);
+
+  public E get(int id);
+
+  public E update(E element);
+
+}

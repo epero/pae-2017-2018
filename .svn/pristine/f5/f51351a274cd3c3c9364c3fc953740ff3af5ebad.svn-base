@@ -1,0 +1,150 @@
+var dtUtilisateurs;
+var isInit;
+
+FrontEnd.onInitPage('pageDashboardTeacher', function() {
+	console.log('onInitPage - pageDashBoardTeacher');
+	dtUtilisateurs =  $('#dtUtilisateurs').DataTable({
+		
+		bAutoWidth : false,
+		info : false,
+		paging:false,
+		dom:"<'pull-left'f>t",
+		language : {
+			"search" : "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_ entrées",
+			"paginate": {
+				"first":      "Premier",
+				"last":       "Dernier",
+				"next":       "Suivant",
+				"previous":   "Précédent"
+			}
+		},
+		select: {
+			style: 'single',
+		},
+		columns : [ 
+			{"data" : getNom},
+			{"data" : getPrenom},
+			{"data" : getType}
+		]
+	});
+	
+	
+
+	FrontEnd.onDisplayPage('pageDashboardTeacher', function() {
+		console.log('onDisplayPage - pageDashBoardTeacher');
+		$('body').removeClass().toggleClass('theme-teal');
+		showNavBar();
+		//if(myApp.getWhoAmI()!=null)
+		//	$('#nbContacts').text('Contacts : ' + myApp.getWhoAmI().nbContacts);
+		remplirUtilisateurs();
+	    google.charts.load('current', {'packages':['corechart']});
+    	google.charts.setOnLoadCallback(drawChartTeacher);
+	});
+	
+	FrontEnd.onLeavePage('pageDashboardTeacher', function() {
+		$('#notification').html('');
+	});
+
+	function drawChartTeacher() {
+		
+		var stats;
+		
+		config = {
+			'data': {
+				'action': 'fillChartTeacher'
+			},
+			'success': function (reponse) {
+				stats =reponse;
+				
+				//console.log(stats);
+				//console.log(stats.aucuncontact);
+		        var data = google.visualization.arrayToDataTable([
+		          ['Task', 'Hours per Day'],
+		          ['Aucun Contact', stats.aucuncontact],
+		          ['Contacts Initiés', stats.contactinities],
+		          ['Contact Accepté', stats.contactacceptes],
+		          ['Stage en ordre', stats.contactstageenordre]
+		        ]);
+
+		        var options = {
+		        		chartArea:{width:'100%',height:'70%'},
+		        		legend:{position:'bottom'}
+		        };
+
+		        var chart = new google.visualization.PieChart(document.getElementById('piechartTeacher'));
+
+		        chart.draw(data, options);
+			}
+		}
+		myApp.myajax(config);	
+    }
+	
+	$('#dtUtilisateurs tbody').on( 'click', 'tr', function () {
+		  var rowData = dtUtilisateurs.row( this ).data();
+		  console.log(rowData);
+		  $('#pageUsersData').css('display', 'block');
+		  remplirUsersData(rowData);
+		  
+	});
+});
+
+function remplirUtilisateurs() {
+	myApp.myajax({
+		data : {
+			'action' : 'visualiserUsers',
+		},
+		success : function(data) {
+			dtUtilisateurs.clear();
+			dtUtilisateurs.rows.add(data).draw();
+			if (isInit !== true){
+				remplirSelect();
+				isInit = true;
+			}
+		}
+	});
+}
+
+function remplirUsersData(rowData) {
+	// données communes
+	$('#userTel').text(rowData.tel);
+	$('#userEmail').text(rowData.email);
+	
+	// données selon rôle
+	
+}
+
+function remplirSelect(){
+	dtUtilisateurs.columns([2]).every( function () {
+        var column = this;
+        var select = $('<select><option value="">Tous</option></select>')
+            .appendTo( $('#dtUtilisateurs_filter') )
+            .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                    $(this).val()
+                );
+
+                column
+                    .search( val ? '^'+val+'$' : '', true, false )
+                    .draw();
+            } );
+
+        column.data().unique().sort().each( function ( d, j ) {
+            select.append( '<option value="'+d+'">'+d+'</option>' )
+        } );
+    } );
+}
+
+function getNom(data){
+	return data.nom;
+}
+
+function getPrenom(data){
+	return data.prenom;
+}
+
+function getType(data){
+	if (data.hasOwnProperty('idUtilisateur')) return "Etudiant";
+	return "Responsable";
+}

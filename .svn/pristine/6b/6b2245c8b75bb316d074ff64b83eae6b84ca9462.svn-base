@@ -1,0 +1,16 @@
+package biz.user;
+
+public interface UserBiz extends UserDto {
+
+  /**
+   * Vérifie si un mot de passe (non hashé) correspond à celui (hashé) stocké dans la base de
+   * données.
+   * 
+   * @param mdp un mot de passe non hashé tel qu'introduit par un utilisateur
+   * @return true si le mot de passe correspond à celui hashé dans la BD, false sinon
+   */
+  boolean verifierMotDePasse(String mdp);
+  
+  
+
+}

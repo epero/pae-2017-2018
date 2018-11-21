@@ -1,0 +1,41 @@
+package biz.ucc;
+
+import biz.user.UserDto;
+
+public interface UserUcc {
+
+  /**
+   * Connecte l'utilisateur en vérifiant son pseudo et son mot de passe.
+   * 
+   * @param pseudo Le pseudo à vérifier
+   * @param mdp Le mot de passe à vérifier
+   * @return un UserDto si le mot de passe et le pseudo correspondent, null sinon
+   */
+  UserDto seConnecter(String pseudo, String mdp);
+
+  /***************************************** INSCRIPTION ****************************************/
+  UserDto sinscrire(UserDto user);
+
+  UserDto seConnecter(UserDto userAverif);
+
+  /*
+   * boolean estPrenomValide(String prenom);
+   * 
+   * boolean estNomValide(String nom);
+   * 
+   * boolean estPseudoValide(String pseudo);
+   * 
+   * boolean estMotDePasseValide(String mdp);
+   * 
+   * boolean estEmailValide(String email);
+   * 
+   * boolean estDateNaissanceValide(); // parametre a voir avec ihm
+   * 
+   * boolean estTelValide(String tel); // accepter que numeros et eventuellement un plus au debut
+   * 
+   * // est_admin=false;annee_academique calculee;nb_contacts=0;date_inscription calculee;
+   */
+
+  /********************************************************************************************/
+
+}

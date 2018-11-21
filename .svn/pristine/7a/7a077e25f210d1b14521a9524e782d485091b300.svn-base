@@ -1,0 +1,13 @@
+package dal.services;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class MockDALServices {
+	
+	
+	
+  public PreparedStatement getPrepareStatement(String query) throws SQLException {
+    return null;
+  }
+}

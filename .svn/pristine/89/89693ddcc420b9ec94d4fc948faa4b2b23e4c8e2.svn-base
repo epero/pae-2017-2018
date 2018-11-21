@@ -1,0 +1,25 @@
+package dal.dao;
+
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import util.AppContext.DependanceInjection;
+
+public class MockContactDaoImpl implements ContactDao {
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateur(ContactDto utilisateur) {
+    return utilisateur;
+  }
+
+}

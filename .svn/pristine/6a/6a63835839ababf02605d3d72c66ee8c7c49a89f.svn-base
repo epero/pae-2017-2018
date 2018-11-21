@@ -1,0 +1,25 @@
+package exceptions;
+
+public class OptimisticLockException extends RuntimeException {
+
+  private Object objetEnDb;
+
+  public OptimisticLockException(String message, Object objetEnDb) {
+    super(message);
+    this.objetEnDb = objetEnDb;
+  }
+
+  public OptimisticLockException() {
+    // TODO Auto-generated constructor stub
+  }
+
+  public OptimisticLockException(String message) {
+    super(message);
+    // TODO Auto-generated constructor stub
+  }
+
+  public Object getObjetEnDb() {
+    return objetEnDb;
+  }
+
+}

@@ -1,0 +1,59 @@
+<!-- Overlay For Sidebars -->
+<div class="overlay"></div>
+<!-- #END# Overlay For Sidebars -->
+<!-- Top Bar -->
+<nav class="navbar" style="display: none;">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a id="navStagify" class="navbar-brand" href="javascript:void(0)">STAGIFY</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+            <ul class="nav navbar-nav navbar-left">
+                <li id="navDashboard" class="pull-left">
+                    <a href="javascript:void(0);" class="js-left-sidebar" data-close="true">
+                        <i class="material-icons">home</i>
+                        <span class="text-navbar">Tableau de bord</span>
+                    </a>
+                </li>
+                <li id="navEntreprises" class="pull-left">
+                    <a href="javascript:void(0);" class="js-left-sidebar" data-close="true">
+                        <i class="material-icons">domain</i>
+                        <span class="text-navbar">Entreprises</span>
+                    </a>
+                </li>
+                <!-- business center || location city -->
+                <li id="navDashboardStudent" class="pull-left" style="display:none;">
+                    <a href="javascript:void(0);" class="js-left-sidebar" data-close="true">
+                        <i class="material-icons">dashboard</i>
+                        <span class="text-navbar">Tableau de bord de l'étudiant</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-right">
+                    <a href="javascript:void(0);" class="js-right-sidebar" data-close="true">
+                        <i id="logout" class="material-icons">exit_to_app</i>
+                    </a>
+                </li>
+                <li class="dropdown nav-element">
+                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="material-icons">person</i>
+                        <span id="whoami" class="text-navbar"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-modif-perso">
+                        <li class="header"><h5>Menu utilisateur</h5></li>
+                        <li class="body">
+                            <li id="btnDonneesPerso">
+                                <a href="javascript:void(0);" class=" waves-effect waves-block">
+                                    <i class="material-icons icon-dropdown">face</i>
+                                    <h6 class="text-dropdown">Mon profil</h6>
+                                </a>
+                            </li>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- #Top Bar -->

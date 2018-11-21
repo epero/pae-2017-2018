@@ -1,0 +1,32 @@
+#Config
+JWTSecret = ceciNEstPasUneCleSecrete
+port = 8080
+
+#DAL properties
+driverClassName = org.postgresql.Driver
+url = jdbc:postgresql://localhost:5432/pae
+ndcDB = postgres
+mdpDB = 12345
+
+#Dependancy injection
+ihm.servlet.DispatcherServlet = ihm.servlet.DispatcherServlet
+
+biz.ucc.UserUcc = biz.ucc.UserUccImpl
+biz.ucc.PersonneContactUcc = biz.ucc.PersonneContactUccImpl
+biz.ucc.EntrepriseUcc = biz.ucc.EntrepriseUccImpl
+biz.ucc.ContactUcc = biz.ucc.ContactUccImpl
+biz.stage.StageUcc = biz.ucc.StageUccImpl
+biz.user.UserDto = biz.user.UserImpl
+biz.user.UserBiz = biz.user.UserImpl
+biz.factory.BizFactory = biz.factory.BizFactoryImpl
+
+dal.dao.UserDao = dal.dao.UserDaoImpl
+dal.dao.PersonneContactDao = dal.dao.PersonneContactDaoImpl
+dal.dao.EntrepriseDao = dal.dao.EntrepriseDaoImpl
+dal.dao.ContactDao = dal.dao.ContactDaoImpl
+dal.dao.StageDao = dal.dao.StageDaoImpl
+dal.services.DalBackendServices = dal.services.DalServicesImpl
+dal.services.DalServices = dal.services.DalServicesImpl
+
+util.AppContext = util.AppContext
+util.Util = util.Util

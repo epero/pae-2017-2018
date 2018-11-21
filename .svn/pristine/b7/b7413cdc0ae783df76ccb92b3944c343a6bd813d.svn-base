@@ -1,0 +1,51 @@
+package ihm.servlet;
+
+import javax.servlet.http.HttpServlet;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
+import util.AppContext;
+
+class Main {
+
+  public static void main(String[] args) {
+
+    DefaultServlet defaultServlet = new DispatcherServlet();
+
+    AppContext appContext = new AppContext();
+    String properties = null;
+
+    if (args.length > 0) {
+      properties = args[0];
+    }
+    appContext.loadProps(properties);
+    appContext.newInstance(defaultServlet);
+
+
+    startServer(defaultServlet, appContext);
+
+  }
+
+
+  private static void startServer(HttpServlet servlet, AppContext appContext) {
+
+    WebAppContext context = new WebAppContext();
+    context.setContextPath("/");
+
+    // context.addServlet(new ServletHolder(new DefaultServlet()), "/");
+    context.addServlet(new ServletHolder(servlet), "/");
+    // context.setWelcomeFiles(new String[] {"index.html"});
+    context.setResourceBase("www");
+    // context.setInitParameter("cacheControl", "no-store, no-cache, must-revalidate");
+
+    Server server = new Server(Integer.parseInt(AppContext.getValueProp("port")));
+    server.setHandler(context);
+
+    try {
+      server.start();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+}

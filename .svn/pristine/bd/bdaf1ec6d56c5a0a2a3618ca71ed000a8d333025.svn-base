@@ -1,0 +1,192 @@
+package dal.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+public class ContactDaoImpl implements ContactDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendServices;
+
+  @DependanceInjection
+  private BizFactory bizfactory;
+
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    // TODO Utilisation de la num_version ?
+    List<ContactDto> listeContacts = new ArrayList<>();
+    // String query ="SELECT
+    // C.id_contact,C.utilisateur,C.entreprise,C.personne_contact,C.etat,C.annee_academique FROM
+    // stagify.contacts C WHERE C.utilisateur=?";
+    String query =
+        "SELECT C.id_contact,C.utilisateur,C.entreprise,C.personne_contact,C.etat,C.annee_academique,"
+            + "E.id_entreprise, E.denomination,E.adresse,E.numero,E.boite,E.code_postal,E.ville,E.email,E.tel,E.est_black_liste,"
+            + "PC.id_personne_contact,PC.nom,PC.prenom,PC.tel,PC.email,PC.entreprise "
+            + "FROM stagify.entreprises E,stagify.contacts C LEFT OUTER JOIN stagify.personnes_contact PC ON PC.id_personne_contact=C.personne_contact "
+            + "WHERE C.utilisateur=? AND C.entreprise=E.id_entreprise";
+
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, utilisateur.getIdUtilisateur());
+    try (ResultSet rs = ps.executeQuery()) {
+
+      while (rs.next()) {
+        // recuperation contact vide
+        ContactDto contact = bizfactory.getContactVide();
+        contact.setIdContact(rs.getInt(1));
+        contact.setUtilisateur(rs.getInt(2));
+        contact.setUtilisateurDto(utilisateur);
+        contact.setEntreprise(rs.getInt(3));
+        EntrepriseDto entreprise = remplirEntreprise(rs.getInt(7), rs.getString(8), rs.getString(9),
+            rs.getInt(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14),
+            rs.getString(15), rs.getBoolean(16));
+        contact.setEntrepriseDto(entreprise);
+        // remplissage personne de contact
+        contact.setPersonneContact(rs.getInt(4)); // personne de contact peut être null !!
+        PersonneContactDto personneContact =
+            remplirPersonneContact(rs.getObject(17), rs.getString(18), rs.getString(19),
+                rs.getString(20), rs.getString(21), rs.getObject(22));
+        contact.setPersonneContactDto(personneContact);
+        contact.setEtat(rs.getString(5));
+        contact.setAnneeAcademique(rs.getString(6));
+        // ajout du contact dans la liste
+        listeContacts.add(contact);
+      }
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      System.out.println("Erreur lors du listing des contacts de l'utilisateur");
+      throw new FatalException("Erreur accès DB");
+    }
+
+    return listeContacts;
+  }
+
+  private EntrepriseDto remplirEntreprise(int idEntreprise, String denomination, String adresse,
+      int numero, String boite, String codePostal, String ville, String email, String tel,
+      boolean estBlackListe) {
+    EntrepriseDto entreprise = bizfactory.getEntrepriseVide();
+    entreprise.setIdEntreprise(idEntreprise);
+    entreprise.setDenomination(denomination);
+    entreprise.setAdresse(adresse);
+    entreprise.setNumero(numero);
+    entreprise.setBoite(boite);
+    entreprise.setCodePostal(codePostal);
+    entreprise.setVille(ville);
+    entreprise.setEmail(email);
+    entreprise.setTel(tel);
+    entreprise.setEstBlackListe(estBlackListe);
+    return entreprise;
+  }
+
+  private PersonneContactDto remplirPersonneContact(Object idPersonneContact, String nom,
+      String prenom, String tel, String email, Object entreprise) {
+    PersonneContactDto personneContact = bizfactory.getPersonneContactVide();
+    // si id == null alors il n y a pas de personne de contact et on renvoi null
+    if (idPersonneContact == null) {
+      return null;
+    }
+    if (entreprise == null) {
+      throw new FatalException(
+          "Erreur de FK entreprise dans la table personnes de contact de la DB");
+    }
+    personneContact.setIdPersonneContact((int) idPersonneContact);
+    personneContact.setNom(nom);
+    personneContact.setPrenom(prenom);
+    personneContact.setTel(tel);
+    personneContact.setEmail(email);
+    personneContact.setEntreprise((int) entreprise);
+    return personneContact;
+  }
+
+
+  @Override
+  public ContactDto insertContactUtilisateurAvecPersonneContact(ContactDto contact) {
+    String query = "INSERT INTO stagify.contacts"
+        + "(utilisateur, entreprise, personne_contact, etat, annee_academique, num_version)"
+        + "VALUES(?, ?, ?, ?, ?, ?)";
+    PreparedStatement ps = dalBackendServices.getPreparedStatementForInsert(query);
+    DaoUtil.setPreparedStatement(ps, contact.getUtilisateurDto().getIdUtilisateur(),
+        contact.getEntrepriseDto().getIdEntreprise(),
+        contact.getPersonneContactDto().getIdPersonneContact(), contact.getEtat(),
+        contact.getAnneeAcademique(), contact.getNumVersion());
+
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+          if (generatedKeys.next()) {
+            contact.setIdContact((generatedKeys.getInt(1)));
+          }
+        }
+        return contact;
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      System.out.println("Erreur lors de l'insertion d'un contact utilisateur");
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateurSansPersonneContact(ContactDto contact) {
+    String query = "INSERT INTO stagify.contacts"
+        + "(utilisateur, entreprise, personne_contact, etat, annee_academique, num_version)"
+        + "VALUES(?, ?, ?, ?, ?, ?)";
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, contact.getUtilisateurDto().getIdUtilisateur(),
+        contact.getEntrepriseDto().getIdEntreprise(), null, contact.getEtat(),
+        contact.getAnneeAcademique(), contact.getNumVersion());
+
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        return contact;
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      System.out.println("Erreur lors de l'insertion d'un contact utilisateur");
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+  }
+
+  @Override
+  public boolean contactEntrepriseExiste(int idUtilisateur, int idEntreprise) {
+    String query =
+        "SELECT entreprise FROM stagify.contacts WHERE utilisateur = ? AND entreprise = ?";
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, idUtilisateur, idEntreprise);
+
+    try (ResultSet resultSet = ps.executeQuery()) {
+      if (resultSet.next()) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (SQLException ex) {
+      System.out.println("Erreur lors de la vérification d'une entreprise pour un contact");
+      throw new FatalException("Erreur acces Db");
+    }
+  }
+
+}

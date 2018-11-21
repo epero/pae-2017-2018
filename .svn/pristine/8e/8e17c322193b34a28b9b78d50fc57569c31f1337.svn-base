@@ -1,0 +1,42 @@
+package dal_dao;
+
+import java.util.List;
+import biz_ucc.UserUCCImpl;
+
+public class UtilisateurDAOImpl implements UtilisateurDAO {
+
+  /*
+   * Utilise des PrepareStatement/ResultSet du DALServices ; Rempli l'utilisateur vide avec ces
+   * données via les setters d'UtilisateurImpl ; Renvoie un objet utilisateur à l'UtilisateurUCC
+   */
+
+  public UtilisateurDAOImpl() {
+
+  }
+
+  @Override
+  public List<UserUCCImpl> getTousLesUtilisateurs() {
+    return null;
+  }
+
+  @Override
+  public UserUCCImpl getUtilisateur(String pseudo) {
+    return null;
+  }
+
+  @Override
+  public boolean insertUtilisateur(UserUCCImpl utilisateur) {
+    return false;
+  }
+
+  @Override
+  public boolean updateUtilisateur(UserUCCImpl utilisateur) {
+    return false;
+  }
+
+  @Override
+  public boolean deleteUtilisateur(UserUCCImpl utilisateur) {
+    return false;
+  }
+
+}

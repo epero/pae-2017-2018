@@ -1,0 +1,16 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.pdc.PersonneContactDto;
+
+public interface PersonneContactUcc {
+  /**
+   * Récupère et renvoie une liste de personnes de contact pour une entreprise donnée.
+   * 
+   * @param idEntreprise l'id de l'entreprise concernée
+   * @return une liste de PersonneContactDto remplie ou vide
+   */
+  List<PersonneContactDto> visualiserPersonnesContact(int idEntreprise);
+
+  PersonneContactDto creerPersonneContact(PersonneContactDto personneContact);
+}

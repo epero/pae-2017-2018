@@ -1,0 +1,16 @@
+package biz.ucc;
+
+import org.mindrot.jbcrypt.BCrypt;
+import biz.user.UserDTO;
+import dal.dao.UserDAO;
+
+public class MockUserDAOImpl implements UserDAO {
+
+  @Override
+  public UserDTO getUser(String pseudo) {
+    // TODO Auto-generated method stub
+
+    return new MockUserImpl(pseudo, BCrypt.hashpw("pierre", BCrypt.gensalt()));
+  }
+
+}

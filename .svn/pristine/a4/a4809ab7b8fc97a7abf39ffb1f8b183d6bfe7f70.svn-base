@@ -1,0 +1,6 @@
+package biz.uow;
+
+public interface UnitOfWork {
+
+
+}

@@ -1,0 +1,99 @@
+package biz.uow;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+import dal.dao.DaoGenerique;
+import dal.services.DalServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+
+public class UnitOfWorkImpl implements UnitOfWork {
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @DependanceInjection
+  DaoGenerique daoGenerique;
+
+  ThreadLocal<LocalListsUow> localUow;
+
+  public void insert(Object object, int cid) {
+    if (localUow.get().mapUpdate.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapUpdate.remove(object.getClass().getSimpleName() + cid);
+    if (localUow.get().mapDelete.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapDelete.remove(object.getClass().getSimpleName() + cid);
+
+    localUow.get().mapInsert.put(object.getClass().getSimpleName() + cid, object);
+  }
+
+  public void update(Object object, int cid) {
+    // quid si dans liste delete?
+    if (localUow.get().mapInsert.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapInsert.put(object.getClass().getSimpleName() + cid, object);
+    else
+      localUow.get().mapUpdate.put(object.getClass().getSimpleName() + cid, object);
+
+    if (localUow.get().mapDelete.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapDelete.remove(object.getClass().getSimpleName() + cid);
+  }
+
+  public void delete(Object object, int cid) {
+    if (localUow.get().mapInsert.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapInsert.remove(object.getClass().getSimpleName() + cid);
+    if (localUow.get().mapUpdate.containsKey(object.getClass().getSimpleName() + cid))
+      localUow.get().mapUpdate.remove(object.getClass().getSimpleName() + cid);
+
+    localUow.get().mapDelete.put(object.getClass().getSimpleName() + cid, object);
+  }
+
+  public void startTransBiz() {
+    localUow = new ThreadLocal<>();
+  }
+
+  public void commitTransBiz() {
+    try {
+      dalServices.startTransaction();
+      for (Entry<String, Object> entry : localUow.get().mapInsert.entrySet()) {
+        localUow.get().mapAfterInsert.put(entry.getKey(), daoGenerique.insert(entry.getValue()));
+      }
+
+      for (Entry<String, Object> entry : localUow.get().mapUpdate.entrySet()) {
+        localUow.get().mapAfterUpdate.put(entry.getKey(), daoGenerique.update(entry.getValue()));
+      }
+
+      /*
+       * Map<String, Object> mapAfterDelete = new HashMap<>(); for (Entry<String, Object> entry :
+       * localUow.get().mapDelete.entrySet()) { mapAfterDelete.put(entry.getKey(),
+       * daoGenerique.delete(entry.getValue())); }
+       */
+
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+  }
+
+  public Object getObjAfterTrans(int uid) {
+    if (localUow.get().mapAfterInsert.containsKey(uid))
+      return localUow.get().mapAfterInsert.get(uid);
+    if (localUow.get().mapAfterUpdate.containsKey(uid))
+      return localUow.get().mapAfterUpdate.get(uid);
+    throw new FatalException("Erreur de programmation");
+  }
+
+
+  private class LocalListsUow {
+    private Map<String, Object> mapInsert = new HashMap<>();
+    private Map<String, Object> mapUpdate = new HashMap<>();
+    private Map<String, Object> mapDelete = new HashMap<>();
+    private Map<String, Object> mapAfterInsert = new HashMap<>();
+    private Map<String, Object> mapAfterUpdate = new HashMap<>();
+    private Map<String, Object> mapAfterDelete = new HashMap<>();
+  }
+
+}

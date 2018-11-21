@@ -1,0 +1,61 @@
+package ihm.servlet;
+
+import java.io.FileNotFoundException;
+import java.util.Properties;
+import javax.servlet.http.HttpServlet;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
+import biz.ucc.UserUCC;
+import util.AppContext;
+import util.AppContext.dependanceInjection;
+
+public class Main {
+
+  @dependanceInjection
+  private static UserUCC userUCC;
+
+  public static void main(String[] args) {
+    Main main = new Main();
+    AppContext appContext = new AppContext();
+    try {
+      appContext.newInstance(main, args[0]);
+      appContext.newInstance(userUCC, args[0]);
+    } catch (FileNotFoundException | IllegalArgumentException | IllegalAccessException
+        | ClassNotFoundException e) {
+
+      e.printStackTrace();
+    }
+    System.out.println(userUCC.seConnecter(null, null));
+    // DALServices dalServices = appContext.newInstance(objet, fichier);
+    DefaultServlet defaultServlet = new DispatcherServlet();
+
+    startServer(defaultServlet, appContext);
+
+  }
+
+
+  private static void startServer(HttpServlet servlet, AppContext appContext) {
+
+    Properties props = new Prop().getProps();
+
+    WebAppContext context = new WebAppContext();
+    context.setContextPath("/");
+
+    // context.addServlet(new ServletHolder(new DefaultServlet()), "/");
+    context.addServlet(new ServletHolder(servlet), "/");
+    // context.setWelcomeFiles(new String[] {"index.html"});
+    context.setResourceBase("www");
+    // context.setInitParameter("cacheControl", "no-store, no-cache, must-revalidate");
+
+    Server server = new Server(Integer.parseInt(props.getProperty("port")));
+    server.setHandler(context);
+
+    try {
+      server.start();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+}

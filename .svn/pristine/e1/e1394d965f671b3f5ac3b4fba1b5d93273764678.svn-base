@@ -1,0 +1,4 @@
+#Dependancy injection
+dal.services.DalServices = dal.services.MockDalServicesImpl
+biz.factory.BizFactory = biz.factory.BizFactoryImpl
+dal.dao.UserDao = dal.dao.MockUserDaoImpl

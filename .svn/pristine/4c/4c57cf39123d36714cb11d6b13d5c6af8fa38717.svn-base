@@ -1,0 +1,62 @@
+$(function() {
+	let whoami = null;
+
+	FrontEnd.displayPage('pageLogin');
+
+	function whoAmI(){
+		config = {
+			'type': 'POST',
+			'url': '/',
+			'data': {
+				'action': 'whoami'
+			},
+			'success': function(reponse){
+				if(reponse == null) {
+					FrontEnd.displayPage('pageLogin');
+				} else {
+					whoami = reponse;
+					FrontEnd.displayPage('pageCongrats');
+				}
+			},
+			'error' : function(e) {
+				FrontEnd.displayPage('pageLogin');
+			}
+		}
+		FrontEnd.ajax(config);
+	}
+
+	whoAmI();
+	
+	$('#btnLogin').click(function(){
+		const username = $('#inputLogin').val();
+		const password = $('#inputMdp').val();
+		
+		config = {
+					'type': 'POST',
+					'url': '/',
+					'data': {
+								'action': 'signin',
+								'user': username,
+								'pswd': password
+					},
+					'success': function(reponse){
+						if(reponse == "ok"){
+							whoami = username;
+							FrontEnd.displayPage('pageCongrats');
+						} else {
+							//FrontEnd.displayPage('pageLogin');
+							$('#alert').html('<div class="alert bg-red text-center">Le nom d\'utilisateur ou le mot de passe est incorrect.</div>');
+						}
+					},
+					'error': function(reponse){
+						FrontEnd.displayPage('pageLogin');
+					}
+				 }
+		FrontEnd.ajax(config);
+	});
+	
+	FrontEnd.onDisplayPage('pageCongrats', function(){
+		$('#whoami').text(whoami);
+	});
+
+});

@@ -1,0 +1,111 @@
+package biz.contact;
+
+import biz.entreprise.EntrepriseDto;
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+
+public class ContactImpl implements ContactBiz {
+  // on garde les objets reference egalement mais on peut les laisser vide
+  private int idContact;
+  private int utilisateur;
+  private UserDto utilisateurDto;
+  private int entreprise;
+  private EntrepriseDto entrepriseDto;
+  private int personneContact;
+  private PersonneContactDto personneContactDto;
+  private String etat;
+  private String anneeAcademique;
+  private int numVersion;
+
+
+
+  @Override
+  public String toString() {
+    return "ContactImpl [idContact=" + idContact + ", utilisateur=" + utilisateur
+        + ", utilisateurDto=" + utilisateurDto + ", entreprise=" + entreprise + ", entrepriseDto="
+        + entrepriseDto + ", personneContact=" + personneContact + ", personneContactDto="
+        + personneContactDto + ", etat=" + etat + ", anneeAcademique=" + anneeAcademique
+        + ", numVersion=" + numVersion + "]";
+  }
+
+  public int getIdContact() {
+    return idContact;
+  }
+
+  public int getUtilisateur() {
+    return utilisateur;
+  }
+
+  public UserDto getUtilisateurDto() {
+    return utilisateurDto;
+  }
+
+  public int getEntreprise() {
+    return entreprise;
+  }
+
+  public EntrepriseDto getEntrepriseDto() {
+    return entrepriseDto;
+  }
+
+  public int getPersonneContact() {
+    return personneContact;
+  }
+
+  public PersonneContactDto getPersonneContactDto() {
+    return personneContactDto;
+  }
+
+  public String getEtat() {
+    return etat;
+  }
+
+  public String getAnneeAcademique() {
+    return anneeAcademique;
+  }
+
+  public int getNumVersion() {
+    return numVersion;
+  }
+
+  public void setIdContact(int idContact) {
+    this.idContact = idContact;
+  }
+
+  public void setUtilisateur(int utilisateur) {
+    this.utilisateur = utilisateur;
+  }
+
+  public void setUtilisateurDto(UserDto utilisateurDto) {
+    this.utilisateurDto = utilisateurDto;
+  }
+
+  public void setEntreprise(int entreprise) {
+    this.entreprise = entreprise;
+  }
+
+  public void setEntrepriseDto(EntrepriseDto entrepriseDto) {
+    this.entrepriseDto = entrepriseDto;
+  }
+
+  public void setPersonneContact(int personneContact) {
+    this.personneContact = personneContact;
+  }
+
+  public void setPersonneContactDto(PersonneContactDto personneContactDto) {
+    this.personneContactDto = personneContactDto;
+  }
+
+  public void setEtat(String etat) {
+    this.etat = etat;
+  }
+
+  public void setAnneeAcademique(String anneeAcademique) {
+    this.anneeAcademique = anneeAcademique;
+  }
+
+  public void setNumVersion(int numVersion) {
+    this.numVersion = numVersion;
+  }
+
+}

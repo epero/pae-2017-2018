@@ -1,0 +1,66 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import biz.pdc.PersonneContactDto;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class PersonneContactUccImplTest {
+
+  @DependanceInjection
+  private PersonneContactUcc personneContactUcc;
+
+  @DependanceInjection
+  private BizFactory factory;
+  private EntrepriseDto entreprise;
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+    entreprise = factory.getEntrepriseVide();
+  }
+
+  @Test
+  public void testVisualiserPersonnesContact1() {
+    entreprise.setIdEntreprise(0);
+    List<PersonneContactDto> personnesContactDto =
+        personneContactUcc.visualiserPersonnesContact(entreprise.getIdEntreprise());
+    assertNull(personnesContactDto);
+  }
+
+  @Test
+  public void testVisualiserPersonnesContact2() {
+    entreprise.setIdEntreprise(1);
+    List<PersonneContactDto> personnesContactDto =
+        personneContactUcc.visualiserPersonnesContact(entreprise.getIdEntreprise());
+    assertNotNull(personnesContactDto);
+  }
+
+  @Test
+  public void testVisualiserPersonnesContact3() {
+    entreprise.setIdEntreprise(1);
+    List<PersonneContactDto> personnesContactDto =
+        personneContactUcc.visualiserPersonnesContact(entreprise.getIdEntreprise());
+    assertFalse(personnesContactDto.isEmpty());
+  }
+
+  @Test
+  public void testVisualiserPersonnesContact4() {
+    entreprise.setIdEntreprise(Integer.MAX_VALUE);
+    List<PersonneContactDto> personnesContactDto =
+        personneContactUcc.visualiserPersonnesContact(entreprise.getIdEntreprise());
+    assertTrue(personnesContactDto.isEmpty());
+  }
+
+
+}

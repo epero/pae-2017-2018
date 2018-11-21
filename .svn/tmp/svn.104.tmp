@@ -1,0 +1,11 @@
+package biz.ucc;
+
+import biz.contact.ContactDto;
+import biz.pdc.PersonneContactDto;
+import biz.stage.StageDto;
+
+public interface StageUcc {
+
+  StageDto confirmDataStage(ContactDto contact, PersonneContactDto personneContact);
+
+}

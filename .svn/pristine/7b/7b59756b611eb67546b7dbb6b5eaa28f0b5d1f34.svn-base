@@ -1,0 +1,22 @@
+package biz.factory;
+
+import biz.pdc.PersonneContactDto;
+import biz.pdc.PersonneContactImpl;
+import biz.user.UserDto;
+import biz.user.UserImpl;
+
+class BizFactoryImpl implements BizFactory {
+
+
+  @Override
+  public UserDto getUserVide() {
+    return new UserImpl();
+  }
+
+  @Override
+  public PersonneContactDto getPersonneContactVide() {
+    return new PersonneContactImpl();
+  }
+
+}
+

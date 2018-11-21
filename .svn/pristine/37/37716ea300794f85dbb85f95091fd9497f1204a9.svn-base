@@ -1,0 +1,14 @@
+$(function() {
+	$('#logout').click(function(){
+		config = {
+					'type': 'POST',
+					'url': '/',
+					'data': {
+						'action': 'logout'
+					}
+				 }
+		FrontEnd.ajax(config);
+		whoami=null;
+		FrontEnd.displayPage('pageLogin');
+	});
+});

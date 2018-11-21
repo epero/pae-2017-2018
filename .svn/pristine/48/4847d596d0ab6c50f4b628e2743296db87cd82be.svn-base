@@ -1,0 +1,14 @@
+package biz.ucc;
+
+import biz.user.UserDTO;
+
+public class UserUCCImpl implements UserUCC {
+
+  @Override
+  public UserDTO seConnecter(String pseudo, String mdp) {
+    // TODO Auto-generated method stub
+
+    return null;
+  }
+
+}

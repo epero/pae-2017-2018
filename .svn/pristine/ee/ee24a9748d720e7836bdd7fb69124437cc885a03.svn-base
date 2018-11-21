@@ -1,0 +1,63 @@
+package biz.ucc;
+
+import java.time.LocalDate;
+import java.util.List;
+import biz.contact.ContactBiz;
+import biz.contact.ContactDto;
+import biz.user.UserDto;
+import dal.dao.ContactDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class ContactUccImpl implements ContactUcc {
+  @DependanceInjection
+  private ContactDao contactDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    List<ContactDto> contactDtos;
+
+    try {
+      dalServices.startTransaction();
+      contactDtos = contactDao.listerContactUtilisateur(utilisateur);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return contactDtos;
+  }
+
+  @Override
+  public ContactDto creerContactUtilisateur(ContactDto contact) {
+
+    ContactBiz contactAVerif = (ContactBiz) contact;
+    // TODO Modifier par un enum mais où le mettre ?
+    contact.setEtat(Util.Etat.INITIE.toString());
+    contact.setAnneeAcademique(Util.LocalDateToYear(LocalDate.now()));
+
+    ContactDto contactARenv;
+    try {
+      dalServices.startTransaction();
+      contactARenv = contactDao.insertContactUtilisateur(contactAVerif);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return contactARenv;
+  }
+
+  // @Override
+  // public List<ContactDto> listerContactUtilisateur(int idUtilisateur) {
+  // return contactDao.listerContactUtilisateur(idUtilisateur);
+  // }
+
+
+}

@@ -1,0 +1,15 @@
+package biz.ucc;
+
+import dal.dao.StageDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+
+public class StageUccImpl implements StageUcc {
+
+  @DependanceInjection
+  private StageDao stageDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+}

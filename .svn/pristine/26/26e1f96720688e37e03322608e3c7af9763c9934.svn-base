@@ -1,0 +1,24 @@
+package ihm.services;
+
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public interface EntrepriseService {
+
+  // TODO : JavaDoc
+
+  public void blacklistEntreprise(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void getEntreprise(HttpServletRequest req, HttpServletResponse resp) throws IOException;
+
+  public void insererEntreprise(HttpServletRequest req, HttpServletResponse resp);
+
+  public void visualiserEntreprises(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void visualiserEntreprisesAsProf(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+}

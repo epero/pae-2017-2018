@@ -1,0 +1,61 @@
+package biz.ucc;
+
+import java.time.LocalDate;
+import biz.stage.StageDto;
+import dal.dao.StageDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class StageUccImpl implements StageUcc {
+
+  @DependanceInjection
+  private StageDao stageDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+
+  @Override
+  public StageDto confirmDataStage(StageDto stage) {
+    Util.checkObject(stage);
+    Util.checkObject(stage.getEntrepriseDto());
+    Util.checkObject(stage.getUtilisateurDto());
+    Util.checkObject(stage.getResponsableDto());
+
+    stage.setAnneeAcademique(Util.localDateToYear(LocalDate.now()));
+    stage.setNumVersion(1);
+    // TODO check biz
+
+    StageDto stageEnDb = null;
+    try {
+      dalServices.startTransaction();
+      // TODO autres verifs biz
+      stageEnDb = stageDao.insertStage(stage);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return stageEnDb;
+  }
+
+
+  @Override
+  public StageDto visualiserStage(int idUtilisateur) {
+    StageDto stage;
+
+    try {
+      dalServices.startTransaction();
+      stage = stageDao.getStage(idUtilisateur);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return stage;
+  }
+
+}

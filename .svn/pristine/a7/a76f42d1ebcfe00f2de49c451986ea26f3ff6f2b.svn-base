@@ -1,0 +1,24 @@
+package biz.ucc;
+
+import biz.user.UserDto;
+
+public interface UserUcc {
+
+  /**
+   * Connecte l'utilisateur en vérifiant son pseudo et son mot de passe.
+   * 
+   * @param pseudo Le pseudo à vérifier
+   * @param mdp Le mot de passe à vérifier
+   * @return un UserDto si le mot de passe et le pseudo correspondent, null sinon
+   */
+  UserDto seConnecter(String pseudo, String mdp);
+
+  UserDto seConnecter(UserDto userAverif);
+
+  UserDto sinscrire(UserDto user);
+
+  UserDto trouverUtilisateurById(UserDto userAverif);
+
+
+
+}

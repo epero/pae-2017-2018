@@ -1,0 +1,184 @@
+<div class="row clearfix datatables-entreprises">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="pageEntreprises" style="display:none;">
+		<div class="container-fluid">
+			<div class="row clearfix">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="card">
+						<div class="header">
+							<h2 class="titre">
+								ENTREPRISES
+							</h2>
+							<small>
+								Sélectionner une entreprise afin de visualiser les personnes de contact associées à celle-ci.
+							</small>
+						</div>
+						<div class="body">
+							<div class="table-responsive">
+								<table id="dtEntreprises" class="table table-bordered table-striped table-hover dataTable">
+									<thead>
+										<tr>
+											<th>Dénomination</th>
+											<th>Ville</th>
+											<!--  <th>Email</th>-->
+											<!--<th>Téléphone</th>-->
+											<th>BlackList</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="pagePersonnesContact" class="col-lg-8 col-md-7 col-sm-6 col-xs-6" style="display:none;">
+		<div class="container-fluid">
+			<div class="row clearfix">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="card">
+						<div class="header">
+							<div class="notificationPDCAjoute block-center"></div>
+							<h2 class="titre">
+								PERSONNES DE CONTACT
+							</h2>
+							<small>
+								Si votre prise de contact avec l'entreprise comporte une personne de contact, sélectionnez-la.
+								<br> Si cette personne n'est pas reprise dans le tableau ci-dessous, ajoutez-la.
+							</small>
+						</div>
+						<div class="body">
+							<div class="table-responsive">
+								<form id="formNewPersonneContact" onsubmit="event.preventDefault();" method="post">
+								<!--<div class="addRow"><button id="addRow">Add New Row</button><button id="btnAddPersonContact" class="btn btn-block btn-lg bg-cyan waves-effect" type="submit">Ajouter</button><button id="btnCancelAddPersonContact" class="btn btn-block btn-lg bg-grey waves-effect" type="reset">Annuler</button></div>-->
+								<table id="dtPersonnesContact" class="table table-bordered table-striped table-hover dataTable">
+									<thead>
+										<tr>								
+											<th>Nom</th>
+											<th>Prénom</th>
+											<th>Email</th>
+											<th>Téléphone</th>
+										</tr>
+									</thead>									
+									<tbody>
+									
+									</tbody>
+								</table>
+								</form>
+								<table id="newRow" style="display:none">
+									<tbody>
+								      <tr id="-1">
+								        <td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="nom" maxlength="50" minlength="1" required aria-required="true">
+															</div>
+														</div>
+								        </td>
+								        <td>
+								        				<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="prenom" maxlength="30" minlength="1" required aria-required="true">
+															</div>
+														</div>
+								        </td>
+								        <td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="email" maxlength="50" minlength="1" required aria-required="true">
+															</div>
+														</div>
+								        </td>
+								        <td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="tel" maxlength="15" minlength="1" required aria-required="true">
+															</div>
+														</div>
+								        </td>
+								      </tr>
+								    </tbody>
+								  </table>
+								<!-- Formulaire nouvelle personne de contact -->
+								<!--<div id="newPersonneContactForm" class="row clearfix" style="display:none;">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+										<div class="header">
+											<h2>
+												Ajout d'une nouvelle personne de contact
+											</h2>
+										</div>
+										<div class="body">
+											<div class="notification"></div>
+											<form id="formNewPersonneContact" onsubmit="event.preventDefault();" method="post">
+												<div class="row clearfix">
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="nom" maxlength="50" minlength="1" required aria-required="true">
+																<label class="form-label">Nom</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="prenom" maxlength="30" minlength="1" required aria-required="true">
+																<label class="form-label">Prénom</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="email" maxlength="50" minlength="1" required aria-required="true">
+																<label class="form-label">Email</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="tel" maxlength="15" minlength="1" required aria-required="true">
+																<label class="form-label">Téléphone</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+														<button id="btnAddPersonContact" class="btn btn-block btn-lg bg-cyan waves-effect" type="submit">Ajouter</button>
+													</div>
+													<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+														<button id="btnCancelAddPersonContact" class="btn btn-block btn-lg bg-grey waves-effect" type="reset">Annuler</button>
+													</div>
+													</div>
+											</form>
+										</div>
+									</div>
+								</div>-->
+								<!-- Initier un contact -->
+								<div id="confirmInitiateContact" style="display:none;">
+									<p id="txtInitiateContact" class="font-bold text-center"></p>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+										<button id ="btnAddContactConfirm" class="btn btn-block btn-lg btn-warning waves-effect" type="button">Confirmer</button>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+										<button id="btnCancelAddContact" class="btn btn-block btn-lg bg-grey waves-effect" type="button">Annuler</button>
+									</div>
+								</div>
+								<div id="btnsContactEntreprises">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+										<button id="btnAddRow" class="btn btn-block btn-lg bg-cyan waves-effect" type="button">Ajouter une personne de contact</button>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+										<button id="btnAddContact" class="btn btn-block btn-lg bg-blue-grey waves-effect" type="button">Initier un contact</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

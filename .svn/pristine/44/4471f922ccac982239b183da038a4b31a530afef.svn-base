@@ -1,0 +1,279 @@
+<div class="row clearfix datatables-entreprises">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="pageEntreprises" style="display:none;">
+		<div class="container-fluid">
+			<div class="row clearfix">
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" >
+					<div class="card">
+						<div class="header">
+							<h2 class="titre">
+								ENTREPRISES
+							</h2>
+							<small>
+								Sélectionner une entreprise afin de visualiser les personnes de contact associées à celle-ci.
+							</small>
+						</div>
+						<div class="body">
+							<div class="table-responsive">
+								<div id="dataTablesEntreprisesStudent" style="display:none;">
+								
+								<table id="dtEntreprises" class="table table-bordered table-striped table-hover dataTable table-condensed" cellspacing="0"
+								 width="100%">
+									<thead>
+										<tr>
+											<th>Dénomination</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+								</div>
+								<div id="dataTablesEntreprisesProf" style="display:none;">
+								<select id="selectAnneeAcademique">
+								</select>
+								<table id="dtEntreprisesAsProf" class="table table-bordered table-striped table-hover dataTable table-condensed" cellspacing="0"
+								 width="100%">
+									<thead>
+										<tr>
+											<th>Dénomination</th>
+											<th>Etudiants en stage</th>											
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+								</div>
+								
+							</div>
+							<div id="divBtnCreerEntreprise">
+								<button id="btnCreerEntreprise" class="btn btn-lg bg-blue-grey waves-effect">Creer nouvelle entreprise</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div id="formCreerEntreprise" style="display:none;">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<div class="card">
+							<div class="header">
+								<h2 class="titre">
+								Cr&eacute;ation d'une nouvelle entreprise
+								</h2>
+								<small>Veuillez introduire les informations relatives &agrave; l'entreprise dans le formulaire ci-dessous.</small>
+							</div>
+							<div class="body">
+								<form id="form-creation-entreprise" onsubmit="event.preventDefault();" class="form-horizontal">
+									<fieldset>
+									<legend>Informations G&eacute;n&eacute;rales</legend>
+										<div class="row clearfix">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="denomination-cne">D&eacute;nomination :</label>
+											</div>
+											<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="denomination" id="denomination-cne" class="form-control"/>
+													</div> 
+												</div>
+											</div>
+										</div>
+										<div class="row clearfix">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="email-cne">Email :</label>
+											</div>
+											<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="email" id="email-cne" class="form-control" placeholder="Optional"/>
+													</div> 
+												</div>
+											</div>
+										</div>
+										<div class="row clearfix">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="tel-cne">T&eacute;l&eacute;phone :</label>
+											</div>
+											<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="tel" id="tel-cne" class="form-control" placeholder="Optional"/>
+													</div> 
+												</div>
+											</div>
+										</div>
+									</fieldset>
+									<fieldset>
+									<legend>Adresse</legend>
+										<div class="row clearfix">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="adresse-cne">Rue :</label>
+											</div>
+											<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="adresse" id="adresse-cne" class="form-control"/>
+													</div> 
+												</div>
+											</div>
+											<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 form-control-label">
+												<label for="numero-cne">Num&eacute;ro :</label>
+											</div>
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="number" name="numero" id="numero-cne" class="form-control"/>
+													</div> 
+												</div>
+											</div>
+											<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 form-control-label">
+												<label for="boite-cne">Bo&icirc;te :</label>
+											</div>
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="boite" id="boite-cne" class="form-control" placeholder="Optional"/>
+													</div> 
+												</div>
+											</div>
+										</div>
+										<div class="row clearfix">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="code-postal-cne">Code postal :</label>
+											</div>
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="codePostal" id="code-postal-cne" class="form-control"/>
+													</div> 
+												</div>
+											</div>
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 form-control-label">
+												<label for="ville-cne">Ville :</label>
+											</div>
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+												<div class="form-group">
+													<div class="form-line">
+														<input type="text" name="ville" id="ville-cne" class="form-control"/>
+													</div> 
+												</div>
+											</div>
+										</div>
+									</fieldset>
+									<div class="btn-center row clearfix">
+										<button type="submit" id="btn-cne-submit" class="btn btn-lg bg-green waves-effect col-lg-3 col-md-3 col-sm-3 col-xs-3" >Enregistrer</button>
+									</div>
+								</form>
+							</div>
+						</div> 
+					</div>
+				</div>
+				
+				<div id="pagePersonnesContact" style="display:none;">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<div class="card">
+							<div class="header">
+								<h2 class="titre-entreprise">
+									INFOS DE L'ENTREPRISE : <span class="font-bold font-italic col-teal" id="entrepriseNom"></span>
+								</h2>
+								<div class="text-center">
+									<div class="info-entreprise">
+										<i class="material-icons icone-info-entreprise">location_on</i><span id="entrepriseAdresse"></span>
+									</div>
+									<div class="info-entreprise">
+											<i class="material-icons icone-info-entreprise">call</i><span id="entrepriseTel"></span>
+									</div>
+									<div class="info-entreprise">
+											<i class="material-icons icone-info-entreprise">email</i><span id="entrepriseEmail"></span>
+									</div>
+									<div class="info-entreprise">
+										<i class="material-icons icone-info-entreprise">info</i><span id="entrepriseBlackliste"></span>
+									</div>
+								</div>
+							</div>
+							<div class="body" style="display: flex">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+									<div id="map" class="gmap"></div>
+								</div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+									<div class="table-responsive">
+										<div class="notification"></div>
+										<div id="divSelectEtudPageEntr" style="display: none">
+											<label for="id_label_single">
+							 				 Selectionnez un étudiant</label>
+											<select id="selectEtudPageEntr" class="form-control input-lg select2-single" dir="rtl" tabindex="-1" aria-hidden="true" name="state">
+											</select>
+										</div>
+										<div id="btnsContactEntreprises">
+											<button id="btnBlacklistEntreprise" style="display:none" class="btn btn-lg bg-amber waves-effect" type="button">Backlister une entreprise</button>
+											<button id="btnAddContact" class="btn btn-lg bg-blue-grey waves-effect" type="button">Initier un contact</button>
+											<button id="addRow" class="btn btn-lg bg-cyan waves-effect">Ajouter une personne de contact</button>
+											<p id="txtInitiatePersonContact" style="display:none" class="font-bold text-center">Veuillez confirmer l'ajout du contact</p>
+											<button id="btnCancelAddPersonContact" style="display:none" class="btn btn-lg bg-grey waves-effect" type="reset">Annuler</button>
+											<button id="btnAddPersonContact" class="btn btn-lg bg-cyan waves-effect" style="display:none" type="submit">Confirmer</button>
+										</div>
+										<div id="confirmInitiateContact" style="display:none;">
+											<p id="txtInitiateContact" class="font-bold text-center"></p>
+											<button id="btnCancelAddContact" class="btn btn-lg bg-grey waves-effect" type="button">Annuler</button>
+											<button id="btnAddContactConfirm" class="btn btn-lg bg-cyan waves-effect" type="button">Confirmer</button>
+										</div>
+										<form id="formNewPersonneContact" onsubmit="event.preventDefault();" method="post">
+											<table id="dtPersonnesContact" class="table table-bordered table-striped table-hover dataTable table-condensed" cellspacing="0"
+											 width="100%">
+												<thead>
+													<tr>
+														<th>Nom</th>
+														<th>Prénom</th>
+														<th>Email</th>
+														<th>Téléphone</th>
+													</tr>
+												</thead>
+												<tbody>
+
+												</tbody>
+											</table>
+										</form>
+										<table id="newRow" style="display:none">
+											<tbody>
+												<tr id="-1">
+													<td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="nom" maxlength="50" minlength="1" required aria-required="true">
+															</div>
+														</div>
+													</td>
+													<td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="prenom" maxlength="30" minlength="1" required aria-required="true">
+															</div>
+														</div>
+													</td>
+													<td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="email" maxlength="50" minlength="1" required aria-required="true">
+															</div>
+														</div>
+													</td>
+													<td>
+														<div class="form-group form-float">
+															<div class="form-line">
+																<input type="text" class="form-control" name="tel" maxlength="15" minlength="1" required aria-required="true">
+															</div>
+														</div>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</div>

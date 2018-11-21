@@ -1,0 +1,32 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class ContactUccImplTest {
+  @DependanceInjection
+  private ContactUcc contactUcc;
+  private ContactDto contactAVerif;
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+    contactAVerif = factory.getContactVide();
+  }
+
+  @Test
+  public void testCreerContactUtilisateur1() {
+    ContactDto contact = contactUcc.creerContactUtilisateur(contactAVerif);
+    assertNotNull(contact);
+  }
+
+}

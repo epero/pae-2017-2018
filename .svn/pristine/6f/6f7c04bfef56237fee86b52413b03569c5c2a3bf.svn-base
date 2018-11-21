@@ -1,0 +1,73 @@
+package biz.stage;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import biz.entreprise.EntrepriseDto;
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+
+public interface StageDto extends Serializable {
+
+  // Getters
+  public int getIdStage();
+
+  public String getAnneeAcademique();
+
+  public LocalDate getDateSignature();
+
+  public String getAdresse();
+
+  public int getNumero();
+
+  public String getBoite();
+
+  public String getCodePostal();
+
+  public String getVille();
+
+  public int getResponsable();
+
+  public PersonneContactDto getResponsableDto();
+
+  public int getEntreprise();
+
+  public EntrepriseDto getEntrepriseDto();
+
+  public int getUtilisateur();
+
+  public UserDto getUtilisateurDto();
+
+  public int getNumVersion();
+
+  // Setters
+  public void setIdStage(int idStage);
+
+  public void setAnneeAcademique(String anneeAcademique);
+
+  public void setDateSignature(LocalDate dateSignature);
+
+  public void setAdresse(String adresse);
+
+  public void setNumero(int numero);
+
+  public void setBoite(String boite);
+
+  public void setCodePostal(String codePostal);
+
+  public void setVille(String ville);
+
+  public void setResponsable(int responsable);
+
+  public void setResponsableDto(PersonneContactDto responsableDto);
+
+  public void setEntreprise(int entreprise);
+
+  public void setEntrepriseDto(EntrepriseDto entrepriseDto);
+
+  public void setUtilisateur(int utilisateur);
+
+  public void setUtilisateurDto(UserDto utilisateurDto);
+
+  public void setNumVersion(int numVersion);
+
+}

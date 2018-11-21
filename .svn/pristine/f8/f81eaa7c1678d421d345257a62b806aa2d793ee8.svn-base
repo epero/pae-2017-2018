@@ -1,0 +1,38 @@
+package dal.dao;
+
+import biz.user.UserDto;
+
+public interface UserDao {
+
+  public UserDto getUser(String pseudo);
+
+  public UserDto getUser(int idUtilisateur);
+
+
+  /**
+   * insert un nouvel utilisateur dans la base de donnees.
+   * 
+   * @param user l utilisateur a inserer
+   * @return un UserDto si l utilisateur a ete insere, null sinon
+   */
+  public UserDto insertUser(UserDto user);
+
+  /**
+   * verifie si la table utilisateurs en db contient le pseudo passe en parametre.
+   *
+   * @param pseudo le pseudo a verifier
+   * @return true si le pseudo existe dans la table utilisateurs, false sinon
+   */
+  public boolean pseudoUserExiste(String pseudo);
+
+  /**
+   * verifie si la table utilisateurs en db contient l email passe en parametre.
+   *
+   * @param email, l'email à vérifier
+   * @return true si l email existe dans la table utilisateurs, false sinon
+   */
+  public boolean emailUserExiste(String email);
+
+  public UserDto updateUser(UserDto user);
+
+}

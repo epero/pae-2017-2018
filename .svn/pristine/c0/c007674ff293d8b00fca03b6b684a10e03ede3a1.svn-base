@@ -1,0 +1,71 @@
+/* Navbar */
+.text-navbar{
+    vertical-align: 5px;
+}
+
+#whoami {
+    vertical-align: 6px;
+}
+
+section.content {
+    margin: 100px 15px 0 10px;
+}
+
+body.signup-page{
+    height: 500px;
+}
+
+a.no-cursor{
+    cursor: default;
+}
+
+.dropdown-modif-perso{
+    top: 90px !important;
+    right: -65px !important;
+}
+
+.nav-element{
+    margin-right: 25px;
+}
+
+/* Datatables */
+
+.table-responsive{
+    overflow-x: hidden;
+}
+
+/* CSS page login */
+.login-page {
+    background-color : #607D8B !important;
+}
+
+/* CSS page sign-up */
+.signup-page {
+	background-color : #607D8B !important;
+}
+
+#pageSignup {
+    margin-top: -12%;
+}
+
+.input-inscription-prenom {
+    margin-top: 35px;
+}
+
+.input-inscription-email {
+    margin-bottom : 40px;
+}
+
+/* CSS page dashboard */
+.datatables-contacts-dashboard{
+    margin-top: 100px;
+}
+
+/* CSS page entreprises */
+.datatables-entreprises {
+    margin-top : 100px;
+}
+
+.titre{
+    padding-bottom: 10px;
+}

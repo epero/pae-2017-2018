@@ -1,0 +1,75 @@
+<div class="row clearfix">
+<div id="pageDashboardStudent" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="display: none;">
+	<!--  <section class="content">-->
+		<div class="container-fluid">
+			<!-- <div class="block-header">
+				<h2>TABLEAU DE BORD</h2>
+			</div> --><!-- Color Pickers -->
+			<div class="row clearfix datatables-contacts-dashboard">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="card">
+						<div class="header">
+							<h2>
+								TABLEAU DE BORD
+							</h2>
+						</div>
+						<div class="body"> <!-- style="display: none" -->
+							<div class="table-responsive">
+								<h4 id="nbContacts">
+									Contacts :  
+								</h4>
+								<br>
+								<table id="dtContacts"
+									class="table table-bordered table-striped table-hover dataTable">
+									<thead>
+										<tr>
+											<th>Entreprise</th>
+											<th>Etat</th>
+											<th>Personne de contact</th>
+											<th>Email</th>
+											<th>Tel</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+							<button id="initContact" class="btn btn-lg bg-blue-grey waves-effect">Initier un nouveau contact</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!-- </section> -->
+</div>
+<div id="pageDashboardTeacher" style="display: none;">
+	<section class="content">
+			<div class="container-fluid">
+				<div class="block-header">
+					<h2>TABLEAU DE BORD</h2>
+				</div>
+				<!-- Color Pickers -->
+				<div class="row clearfix">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="card">
+							<div class="header">
+								<h2>TON TEXTE DE BEAU GOSSE ICI.</h2>
+							</div>
+							<div class="body">
+								<div class="row clearfix">
+									<div class="col-md-6">
+										<b>COLONNE1</b>
+									</div>
+									<div class="col-md-6">
+										<b>COLONNE2</b>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</section>
+</div>
+</div>
+

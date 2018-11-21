@@ -1,0 +1,155 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
+import biz.factory.BizFactory;
+import biz.stage.StageDto;
+import exceptions.BizException;
+import exceptions.FatalException;
+import exceptions.OptimisticLockException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class StageUccImplTest {
+
+  @DependanceInjection
+  private StageUcc stageUcc;
+  @DependanceInjection
+  private BizFactory factory;
+
+  private StageDto stageAVerif;
+
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+    stageAVerif = factory.getStageVide();
+  }
+
+  @Test
+  public void testGetStage1() {
+    assertNotNull(stageUcc.visualiserStage(1));
+  }
+
+  @Test
+  public void testGetStage2() {
+    assertNotNull(stageUcc.visualiserStage(998));
+  }
+
+  @Test(expected = BizException.class)
+  public void testGetStage3() {
+    stageUcc.visualiserStage(999);
+  }
+
+  @Test(expected = FatalException.class)
+  public void testGetStage4() {
+    stageUcc.visualiserStage(-1);
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage1() {
+    // format adresse incorrect
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage2() {
+    // format boite incorrect
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage3() {
+    // format code postal incorrect
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage4() {
+    // format ville incorrect
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage5() {
+    // format date signature incorrect
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage6() {
+    // userDb null
+  }
+
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage7() {
+    // entrepriseDb null
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage8() {
+    // personneContactDb null
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage9() {
+    // contactDb null
+  }
+
+  @Test(expected = OptimisticLockException.class)
+  public void confirmDataStage10() {
+    // contactNumVersion != contactDb
+  }
+
+  @Test(expected = OptimisticLockException.class)
+  public void confirmDataStage11() {
+    // userNumVersion != userDb
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage12() {
+    // !userDb.getAnneeAcademique().equals(stage.getAnneeAcademique()
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage13() {
+    // stageDao.getStage(idUser) != null
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage14() {
+    //!pcDao.personneDeContactAppartientEntreprise(stage.getResponsable(),
+    // stage.getEntreprise())
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage15() {
+    // (contactDao.getContacts(idUser, Etat.STAGE_EN_ORDRE.getNumEtat()).size() != 0)
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage16() {
+    // List<ContactDto> contactsAcceptes = contactDao.getContacts(idUser,
+    // Etat.ACCEPTE.getNumEtat());
+    // contactsAcceptes.size() != 1
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage17() {
+    // ContactDto contactAccepteDb = contactsAcceptes.get(0);
+    // contactAccepteDb.getIdContact() != idContact
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage18() {
+    // ContactDto contactAccepteDb = contactsAcceptes.get(0);
+    // contactAccepteDb.getEntreprise() != (stage.getEntreprise()
+  }
+
+  @Test(expected = BizException.class)
+  public void confirmDataStage19() {
+    // (stageDao.getStage(idUser) != null)
+  }
+
+
+
+}

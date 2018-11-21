@@ -1,0 +1,166 @@
+package biz.ucc;
+
+import java.time.LocalDate;
+import biz.user.UserBiz;
+import biz.user.UserDto;
+import dal.dao.UserDao;
+import dal.services.DalServices;
+import exceptions.BizException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class UserUccImpl implements UserUcc {
+
+  @DependanceInjection
+  private UserDao userDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+
+  @Override
+  public UserDto seConnecter(String pseudo, String mdp) {
+    UserBiz userEnDb;
+    try {
+      dalServices.startTransaction();
+      userEnDb = (UserBiz) userDao.getUser(pseudo);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    if (userEnDb != null && userEnDb.verifierMotDePasse(mdp)) {
+      return userEnDb;
+    }
+    return null;
+  }
+
+
+
+  @Override
+  public UserDto seConnecter(UserDto user) {
+
+    UserBiz userAverif = (UserBiz) user;
+    Util.checkFormatString(userAverif.getPseudo(), userAverif.MAX_CARACTERES_PSEUDO,
+        "Le format du champ pseudo est incorrect");
+    Util.checkFormatString(userAverif.getMdp(), userAverif.MAX_CARACTERES_MDP,
+        "Le format du champ mdp est incorrect");
+
+    UserBiz userEnDb;
+    try {
+      dalServices.startTransaction();
+      userEnDb = (UserBiz) userDao.getUser(userAverif.getPseudo());
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+    if (userEnDb != null && userEnDb.verifierMotDePasse(userAverif.getMdp())) {
+      return userEnDb;
+    }
+    return null;
+  }
+
+  @Override
+  public UserDto sinscrire(UserDto user) {
+    // PROBLEME: n envoie qu une exception avec 1 message --> quid du cas ou il y a plusieurs champs
+    // non-valides? --> il faudrait renvoyer (un objet contenant) une liste d'erreurs
+
+    UserBiz userAVerif = (UserBiz) user;
+    Util.checkFormatString(user.getPseudo(), userAVerif.MAX_CARACTERES_PSEUDO,
+        "Le format du Pseudo est incorrect");
+    Util.checkFormatString(user.getMdp(), userAVerif.MAX_CARACTERES_MDP,
+        "Le format du mdp est incorrect");
+    Util.checkFormatString(user.getPrenom(), userAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prenom est incorrect");
+    Util.checkFormatString(user.getNom(), userAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(user.getEmail(), userAVerif.MAX_CARACTERES_EMAIL, userAVerif.REGEX_EMAIL,
+        "Le format de l'email est incorrect");
+    Util.checkFormatString(user.getTel(), userAVerif.MAX_CARACTERES_TEL, userAVerif.REGEX_TEL,
+        "Le format du numero de tel est incorrect");
+    Util.checkFormatDate(user.getDateNaissance(), "Le format de la date est incorrect");
+    user.setDateInscription(LocalDate.now());
+    user.setAnneeAcademique(Util.localDateToYear(user.getDateInscription()));
+    user.setMdp(Util.hashpw(user.getMdp()));
+
+    UserDto userARenv;
+    try {
+      dalServices.startTransaction();
+
+      if (userDao.pseudoUserExiste(user.getPseudo())) {
+        throw new BizException("ce pseudo existe déjà");
+      }
+      if (userDao.emailUserExiste(user.getEmail())) {
+        throw new BizException("cet email existe déjà");
+      }
+      userARenv = userDao.insertUser(user);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return userARenv;
+  }
+
+  public UserDto MAJInfoUtilisateur(UserDto user) {
+
+    UserBiz userAVerif = (UserBiz) user;
+
+    Util.checkFormatString(user.getPseudo(), userAVerif.MAX_CARACTERES_PSEUDO,
+        "Le format du Pseudo est incorrect");
+    if (user.getMdp() != null) {
+      Util.checkFormatString(user.getMdp(), userAVerif.MAX_CARACTERES_MDP,
+          "Le format du mdp est incorrect");
+    }
+    Util.checkFormatString(user.getPrenom(), userAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prenom est incorrect");
+    Util.checkFormatString(user.getNom(), userAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(user.getEmail(), userAVerif.MAX_CARACTERES_EMAIL, userAVerif.REGEX_EMAIL,
+        "Le format de l'email est incorrect");
+    Util.checkFormatString(user.getTel(), userAVerif.MAX_CARACTERES_TEL, userAVerif.REGEX_TEL,
+        "Le format du numero de tel est incorrect");
+    Util.checkFormatDate(user.getDateNaissance(), "Le format de la date est incorrect");
+
+    if (user.getMdp() != null) {
+      // Set mdp
+    }
+
+    UserDto userARenv;
+    try {
+      dalServices.startTransaction();
+      userARenv = userDao.updateUser(user);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return userARenv;
+  }
+
+  @Override
+  public UserDto trouverUtilisateurById(UserDto user) {
+    UserBiz userAverif = (UserBiz) user;
+
+    UserBiz userEnDb;
+    try {
+      dalServices.startTransaction();
+      userEnDb = (UserBiz) userDao.getUser(userAverif.getIdUtilisateur());
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    if (userEnDb != null) {
+      return userEnDb;
+    }
+    return null;
+  }
+}

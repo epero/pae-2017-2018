@@ -1,0 +1,38 @@
+package ihm.servlet;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.servlet.DefaultServlet;
+
+
+public class DispatcherServlet extends DefaultServlet {
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    // TODO Auto-generated method stub
+    System.out.println(req.getRequestURI());
+    if (req.getRequestURI() == "/") {
+      Files.copy(new File("inc/header.html").toPath(), resp.getOutputStream());
+      Files.copy(new File("inc/_login.html").toPath(), resp.getOutputStream());
+      Files.copy(new File("inc/prefooter.html").toPath(), resp.getOutputStream());
+      Files.copy(new File("inc/footer.html").toPath(), resp.getOutputStream());
+      resp.setContentType("text/html; charset=UTF-8");
+    }
+
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    // TODO Auto-generated method stub
+
+  }
+
+
+
+}

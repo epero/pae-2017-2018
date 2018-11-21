@@ -1,0 +1,20 @@
+package ihm.services;
+
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public interface PersonneContactService {
+
+  // TODO : JavaDoc
+
+  public void creerPersonneContact(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void visualiserPersonnesContact(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void visualiserResponsables(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+}

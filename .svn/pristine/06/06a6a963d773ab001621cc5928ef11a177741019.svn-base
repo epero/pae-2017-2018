@@ -1,0 +1,39 @@
+package biz.pdc;
+
+public interface PersonneContactDto {
+
+  // TODO conseils Leleux
+  // créer 2 méthodes :
+  // l'une getPersonneContact() ;
+  // l'autre getPersonneContactEtEntreprise();
+
+  public int getIdPersonneContact();
+
+  public String getNom();
+
+  public String getPrenom();
+
+  public String getTel();
+
+  public String getEmail();
+
+  public int getEntreprise();
+
+  // public EntrepriseDto getEntrepriseDto();
+
+  public void setIdPersonneContact(int idPersonneContact);
+
+  public void setNom(String nom);
+
+  public void setPrenom(String prenom);
+
+  public void setTel(String tel);
+
+  public void setEmail(String email);
+
+  public void setEntreprise(int entreprise);
+
+  // public void setEntrepriseDto(EntrepriseDto entrepriseDto);
+
+
+}

@@ -1,0 +1,28 @@
+package dal.dao;
+
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.user.UserDto;
+
+public interface ContactDao {
+  /**
+   * récupère et renvoie une liste de contacts pour un utilisateur donné.
+   * 
+   * @param utilisateur ,l'utilisateur dont on recherche les contacts
+   * @return une liste de contacts de l'utilisateur, cette liste est vide s'il n'y a pas de contact
+   *         pour cet utilisateur
+   */
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur);
+
+  public ContactDto insertContactUtilisateur(ContactDto utilisateur);
+
+  // /**
+  // * récupère et renvoie une liste de contacts pour un utilisateur donné.
+  // *
+  // * @param utilisateur ,l'utilisateur dont on recherche les contacts
+  // * @return une liste de contacts de l'utilisateur, cette liste est vide s'il n'y a pas de
+  // contact
+  // * pour cet utilisateur
+  // */
+  // public List<ContactDto> listerContactUtilisateur(int idUtilisateur);
+}

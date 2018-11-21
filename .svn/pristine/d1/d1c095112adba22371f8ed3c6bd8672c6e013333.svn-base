@@ -1,0 +1,162 @@
+<div class="row clearfix">
+<div id="pageDonneesPerso" style="display: none;">
+    
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2"></div>
+    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+        <div class="card container-fluid">
+            <div class="header">
+                <h2 class="text-center">
+                    Modifier vos informations personnelles
+                </h2>
+            </div>
+            <div class="body">
+                <div id="notification-form-infos-perso"></div>
+                <form id="form-modif-donnees-perso" onsubmit="event.preventDefault();" class="form-horizontal">
+                    <div class="row clearfix">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="pseudo">Pseudo :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line disabled">
+                                    <input type="text" name="pseudo" id="pseudo" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Affichage bouton modifier mdp par défaut -->
+                    <div id="div-btn-modif-mdp">
+                        <div class="row clearfix">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                                <label for="mdp-actuel">Mot de passe :</label>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-lg-offset-2 col-md-offset-2 col-sm-offset-4 col-xs-offset-5">
+                                    <button id="btn-modif-mdp" type="button" class="btn bg-teal m-t-15 waves-effect">
+                                        Modifier  <i class="material-icons">create</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Affichage input modifier mot de passe -->
+                    <div id="inputs-modif-mdp" style="display:none">
+                        <div class="row clearfix">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                                <label for="mdp-actuel">Mot de passe actuel :</label>
+                            </div>
+                            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        <input type="password" name="mdpActuel" id="mdpActuel" class="form-control" placeholder="Indiquer votre mot de passe actuel">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                                <label for="nouveau-mdp1">Nouveau mot de passe :</label>
+                            </div>
+                            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        <input type="password" name="nouveauMdp1" id="nouveauMdp1" class="form-control" placeholder="Indiquer votre nouveau mot de passe">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                                <label for="nouveau-mdp2">Confirmation mot de passe :</label>
+                            </div>
+                            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        <input type="password" name="nouveauMdp2" id="nouveauMdp2" class="form-control" placeholder="Confirmer votre nouveau mot de passe">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="btns-form-mdp-perso">
+                                <button type="button" id="btn-mdp-cancel" class="btn btn-lg bg-grey waves-effect col-lg-1 col-md-1 col-sm-1 col-xs-1"><i class="material-icons">clear</i></button>
+                                <button type="submit" id="btn-mdp-submit" class="btn btn-lg bg-green waves-effect col-lg-1 col-md-1 col-sm-1 col-xs-1"><i class="material-icons">done</i></button>
+                            </div>
+                    </div>
+
+                    <div class="row clearfix input-donnees-perso-nom">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="nom">Nom :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line">
+                                    <input type="text" name="nom" id="nom" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row clearfix">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="Prenom">Prénom :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line">
+                                    <input type="text" name="prenom" id="prenom" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row clearfix">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="dateNaissance">Date de naissance :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line">
+                                    <input type="text" name="dateNaissance" id="dateNaissance" class="form-control">
+                                </div>
+                                <div class="help-info">Format JJ/MM/AAAA</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row clearfix">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="email">Email :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line">
+                                    <input type="text" name="email" id="email" class="form-control">
+                                </div>
+                                <div class="help-info">@vinci.be ou @student.vinci.be</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row clearfix">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+                            <label for="telephone">Téléphone :</label>
+                        </div>
+                        <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+                            <div class="form-group">
+                                <div class="form-line">
+                                    <input type="text" name="tel" id="tel" class="form-control">
+                                </div>
+                                <div class="help-info">Format +32</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row clearfix">
+                        <div class="btns-form-modif-donnees-perso">
+                            <button type="button" id="btn-donnees-perso-cancel" class="btn btn-lg bg-cyan waves-effect col-lg-3 col-md-3 col-sm-3 col-xs-3">Annuler</button>
+                            <button type="submit" id="btn-donnees-perso-submit" class="btn btn-lg bg-green waves-effect col-lg-3 col-md-3 col-sm-3 col-xs-3">Modifier</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2"></div>
+
+</div>
+</div>

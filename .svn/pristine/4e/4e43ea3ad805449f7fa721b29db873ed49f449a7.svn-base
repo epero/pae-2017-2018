@@ -1,0 +1,72 @@
+package ihm.servlet;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+public class Prop {
+
+  private Properties props = new Properties();
+  private FileInputStream file = null;
+
+  // Constructeur avec paramètres
+  public Prop(String fichier) {
+
+    try {
+      file = new FileInputStream("fichier");
+    } catch (FileNotFoundException ex) {
+      try {
+        file = new FileInputStream("conf/dev.properties");
+      } catch (FileNotFoundException ex2) {
+        ex2.printStackTrace();
+        System.exit(1);
+      }
+    }
+
+    try {
+      props.load(file);
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      System.exit(2);
+    }
+
+    try {
+      file.close();
+    } catch (IOException ex) {
+      System.out.println("Erreur de fermeture du fichier properties");
+    }
+  }
+
+  // Constructeur sans paramètre
+  public Prop() {
+
+    try {
+      file = new FileInputStream("conf/dev.properties");
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      System.exit(1);
+    }
+
+    try {
+      props.load(file);
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      System.exit(2);
+    }
+
+    try {
+      file.close();
+    } catch (IOException ex) {
+      System.out.println("Erreur de fermeture du fichier properties");
+    }
+  }
+
+  public Properties getProps() {
+    return this.props;
+  }
+
+  public void setProps(Properties props) {
+    this.props = props;
+  }
+}

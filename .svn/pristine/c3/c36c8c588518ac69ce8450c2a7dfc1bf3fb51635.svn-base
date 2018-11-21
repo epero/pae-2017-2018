@@ -1,0 +1,9 @@
+package dal.dao;
+
+public interface DaoGenerique {
+
+  public Object insert(Object object);
+
+  public Object get(int id, Class<?> classe);
+
+}

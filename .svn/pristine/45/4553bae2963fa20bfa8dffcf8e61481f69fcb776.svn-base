@@ -1,0 +1,14 @@
+package biz.factory;
+
+import biz.user.UserDTO;
+
+public class BizFactoryImpl implements BizFactory {
+
+  @Override
+  public UserDTO getUser() {
+    // TODO Auto-generated method stub
+	//return new UserImpl();  
+    return null;
+  }
+
+}

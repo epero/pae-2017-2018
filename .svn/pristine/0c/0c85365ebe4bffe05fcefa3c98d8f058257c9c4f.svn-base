@@ -1,0 +1,11 @@
+package dal.services;
+
+import java.sql.PreparedStatement;
+import dal.services.DalServices;
+
+public class MockDalServicesImpl implements DalServices {
+
+  public PreparedStatement getPreparedStatement(String query) {
+    return null;
+  }
+}

@@ -1,0 +1,45 @@
+
+        <script src="js/jquery.js"></script>
+
+        <!-- Framework JS -->
+        <script src="js/framework/jquery.history.js"></script>
+        <script src="js/framework/model.js"></script>
+        <script src="js/framework/frontend.js"></script>
+        <script src="js/framework/frontendhistory.js"></script> 
+
+        <!-- AdminBSB JS -->
+        <!-- Jquery Core Js -->
+        <script src="../../plugins/jquery/jquery.min.js"></script>
+
+        <!-- Bootstrap Core Js -->
+        <script src="../../plugins/bootstrap/js/bootstrap.js"></script>
+        
+        <!-- Select Plugin Js -->
+		<script src="../../plugins/bootstrap-select/js/bootstrap-select.js"></script>
+
+        <!-- Waves Effect Plugin Js -->
+        <script src="../../plugins/node-waves/waves.js"></script>
+        
+        <!-- Autosize Plugin Js -->
+		<script src="../../plugins/autosize/autosize.js"></script>
+
+        <!-- Validation Plugin Js -->
+        <script src="../../plugins/jquery-validation/jquery.validate.js"></script>
+        
+        <!-- Moment Plugin Js -->
+    	<script src="../../plugins/momentjs/moment.js"></script>
+
+    	<!-- Bootstrap Material Datetime Picker Plugin Js -->
+		<script src="../../plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+
+        <!-- Custom Js -->
+        <script src="../../js/admin.js"></script>
+
+        <!-- Personnal JS -->
+        <script type='text/javascript' > 
+  			var whoami = null; 
+		</script>
+        <script type="text/javascript" src="js/util.js"></script>
+        <script type="text/javascript" src="js/login.js"></script>
+        <script type="text/javascript" src="js/congrats.js"></script>
+        <script type="text/javascript" src="js/signup.js"></script>

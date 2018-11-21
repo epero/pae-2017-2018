@@ -1,0 +1,34 @@
+package ihm.services;
+
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public interface ContactService {
+
+  // TODO : JavaDoc
+
+  public void creerContact(HttpServletRequest req, HttpServletResponse resp) throws IOException;
+
+  public void creerContactAsProf(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void existeContactAccepte(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void existeContactAccepteAsProf(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void modifierEtatContacts(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void modifierEtatContactsAsProf(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void visualiserContacts(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+  public void visualiserContactsAsProf(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException;
+
+}

@@ -1,0 +1,71 @@
+DROP SCHEMA stagify CASCADE;
+CREATE SCHEMA stagify;
+
+CREATE TABLE stagify.utilisateurs(
+    id_utilisateur      SERIAL PRIMARY KEY,
+    pseudo              CHARACTER VARYING(30),
+    mdp                 CHARACTER(60),
+    nom                 CHARACTER VARYING(50),
+    prenom              CHARACTER VARYING(30),
+    date_naissance      TIMESTAMP,
+    tel                 CHARACTER VARYING(15), 
+    email               CHARACTER VARYING(100),
+    date_inscription    TIMESTAMP,
+    annee_academique    CHARACTER(9),
+    est_admin           BOOLEAN,
+    nb_contacts         INTEGER
+);
+
+CREATE TABLE stagify.entreprises(
+    id_entreprise       SERIAL PRIMARY KEY,
+    denomination        CHARACTER VARYING(50),
+    adresse             CHARACTER VARYING(30),
+    numero              INTEGER,
+    boite               CHARACTER VARYING(5),
+    code_postal         CHARACTER(4),
+    ville               CHARACTER VARYING(30),
+    email               CHARACTER VARYING(50),
+    tel                 CHARACTER VARYING(15),
+    est_black_liste     BOOLEAN 
+);
+
+CREATE TABLE stagify.personnes_contact(
+    id_personne_contact SERIAL PRIMARY KEY,
+    nom                 CHARACTER VARYING(50),
+    prenom              CHARACTER VARYING(30),
+    tel                 CHARACTER VARYING(15),
+    email               CHARACTER VARYING(50),
+    entreprises         INTEGER  REFERENCES stagify.entreprises(id_entreprise)
+);
+
+CREATE TABLE stagify.contacts(
+    id_contact          SERIAL PRIMARY KEY,
+    utilisateur         INTEGER  REFERENCES stagify.utilisateurs(id_utilisateur),
+    entreprise          INTEGER  REFERENCES stagify.entreprises(id_entreprise),
+    personne_contact    INTEGER  REFERENCES stagify.personnes_contact(id_personne_contact),
+    etat                CHARACTER VARYING(15),
+    annee_academique    CHARACTER(9) 
+);
+
+CREATE TABLE stagify.stages(
+    id_stage            SERIAL PRIMARY KEY,
+    annee_academique    CHARACTER(9),
+    date_signature      TIMESTAMP,
+    adresse             CHARACTER VARYING(30),
+    numero              INTEGER,
+    boite               CHARACTER VARYING(5),
+    code_postal         CHARACTER(4),
+    ville               CHARACTER VARYING(30),
+    responsable         INTEGER  REFERENCES stagify.personnes_contact(id_personne_contact),
+    entreprise          INTEGER  REFERENCES stagify.entreprises(id_entreprise),
+    utilisateur         INTEGER  REFERENCES stagify.utilisateurs(id_utilisateur)
+);
+
+-- blehmann ; azerty
+INSERT INTO "stagify"."utilisateurs" ("id_utilisateur", "pseudo", "mdp", "nom", "prenom", "date_naissance", "tel", "email", "date_inscription", "annee_academique", "est_admin", "nb_contacts") VALUES ('1', 'blehmann', '$2a$10$NU3mdceAXUnu88x6Mx4liugCUw7AZJzeHJarSO0O6qLGms.BDshWS', 'Lehmann', 'Brigitte', '1975-01-01', '04/95.50.19.38', 'lehmann', '2018-02-28 18:00:00', '0000-0000', 'true', '0');
+-- lleleux ; azertyuiop
+INSERT INTO "stagify"."utilisateurs" ("id_utilisateur", "pseudo", "mdp", "nom", "prenom", "date_naissance", "tel", "email", "date_inscription", "annee_academique", "est_admin", "nb_contacts") VALUES ('2', 'lleleux', '$2a$10$KVM5Z5HNrRkU6GNjYnQVm.2sqlclDm18ZH1DnJFjULmphTfW8bZQy', 'Leleux', 'Laurent', '1990-01-01', '04/98.41.10.22', 'laurent.leleux@vinci.be', '2018-02-28 18:00:05', '0000-0000', 'true', '0');
+-- ndelannoy ; bouteille3
+INSERT INTO "stagify"."utilisateurs" ("id_utilisateur", "pseudo", "mdp", "nom", "prenom", "date_naissance", "tel", "email", "date_inscription", "annee_academique", "est_admin", "nb_contacts") VALUES ('3', 'ndelannoy', '$2a$10$.gbeKNsFDODaSMHyC8bC.uLq72TLmYUiCNpCOtai8DhYwzDTT.MOu', 'Delannoy', 'Nicolas', '1995-03-09', '04/97.07.10.10', 'nicolas.delannoy@student.vinci.be', '2018-02-28 18:05:00', '2017-2018', 'false', '0');
+-- vvanrossem ; azerty
+INSERT INTO "stagify"."utilisateurs" ("id_utilisateur", "pseudo", "mdp", "nom", "prenom", "date_naissance", "tel", "email", "date_inscription", "annee_academique", "est_admin", "nb_contacts") VALUES ('4', 'vvanrossem', '$2a$10$NU3mdceAXUnu88x6Mx4liugCUw7AZJzeHJarSO0O6qLGms.BDshWS', 'Van Rossem', 'Vincent', '1988-01-01', '04/95.31.14.11', 'vincent.vanrossem@student.vinci.be', '2018-02-28 18:05:05', '2017-2018', 'false', '0');

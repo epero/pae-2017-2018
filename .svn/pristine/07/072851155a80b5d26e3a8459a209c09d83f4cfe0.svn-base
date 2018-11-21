@@ -1,0 +1,299 @@
+var dtContacts;
+var simpleSelect;
+var selectedStud;
+var existeContactAccepte;
+
+FrontEnd.onInitPage('pageDashboardStudent', function() {
+	//console.log('onInitPage - pageDashBoardStudent');
+	
+	existeContactAccepte=fctExisteContactAccepte();
+	
+	dtContacts = $('#dtContacts').DataTable({
+		bAutoWidth : false,
+		info : false,
+		language : {
+			"search" : "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_ entrées",
+			"paginate": {
+				"first":      "Premier",
+				"last":       "Dernier",
+				"next":       "Suivant",
+				"previous":   "Précédent"
+			}
+		},
+		/*select : {
+			style : 'single'
+		},*/
+		data : "",
+		columns : [ 
+			{"data" : "entrepriseDto.denomination"},
+			{"data" : null,
+			 "render" : simpleSelectEtat
+			}, 
+			{"data" : getPersonneContact},
+			{"data" : getEmail},
+			{"data" : getTel}
+		],
+		rowId : 'idContact'
+	});
+	
+    $('#initContact').click(function(){
+        $('#pageEntreprises').removeClass();
+        $('#pageEntreprises').toggleClass("col-lg-12 col-md-12 col-sm-12 col-xs-12");
+        $('#confirmInitiateContact').hide();
+        $('#btnsContactEntreprises').show();
+		FrontEnd.displayPage('pageEntreprises');
+    });
+    
+    $('.select2-single').on('change', function (e) {
+        selectedStud = $(this).find("option:checked").val();
+		remplirContacts();
+		drawChartStudent();
+    });
+    
+    $('#btnSauverEtat').click(function(){
+    	$('table tbody tr td select:not([multiple])').each(function(i,el){
+    		el=$(el);
+    		config={
+    				'data':{
+    					'action': 'modifierEtatContact',
+    					'idContact': el.parent().parent().attr('id'), 
+    					'etat':el.val()
+    				},
+    				success:function(response){
+    					location.reload(false);
+    				}
+    		}
+    		myApp.myajax(config);
+    	});	
+    });
+
+	FrontEnd.onDisplayPage('pageDashboardStudent', function() {
+		//
+		console.log('onDisplayPage - pageDashBoardStudent');
+		$('body').removeClass().toggleClass('theme-teal');
+		showNavBar();
+		if(myApp.getWhoAmI().estAdmin){		
+			
+			myApp.myajax({
+				data : {
+					'action' : 'visualiserUsers',
+				},
+				success : function(reponse) {
+					var data = $.map(reponse, function (obj) {
+						  obj.id = obj.id || obj.idUtilisateur; // replace pk with your identifier
+						  obj.text = obj.text || obj.nom; // replace name with the property used for the text
+						  return obj;
+					});
+					
+					$('.select2-single').select2({
+						width: '35%',
+						data: data,
+						theme: "bootstrap",
+						val : data[0]
+						//placeholder: "Selectionnez un étudiant"
+					});
+					$('#divSelectEtud').show();
+					selectedStud = data[0].id;
+					console.log(selectedStud);
+					remplirContacts();
+				    google.charts.load('current', {'packages':['corechart']});
+					google.charts.setOnLoadCallback(drawChartStudent);
+				}
+			});
+
+		}	
+		else{
+			console.log(selectedStud);
+			remplirContacts();
+		    google.charts.load('current', {'packages':['corechart']});
+			google.charts.setOnLoadCallback(drawChartStudent);
+			$('#nbContacts').text('Contacts : ' + myApp.getWhoAmI().nbContacts);	
+		}
+	});
+	
+	FrontEnd.onLeavePage('pageDashboardStudent', function() {
+		$('#divSelectEtud').hide();
+		$('.select2-single').val(null);
+
+		selectedStud = undefined;
+		$('#nbContacts').text("Contacts : ");
+		$('#notification').html('');
+		$('#notifContact').html('');
+	});
+
+	/*FrontEnd.onDisplayPage('pageDashboardTeacher', function() {
+		//console.log('onDisplayPage - pageDashBoardTeacher');
+		$('#whoami').text(myApp.getWhoAmI().prenom + " " + myApp.getWhoAmI().nom);
+		remplirContacts();
+	});*/
+	
+});
+
+
+
+function drawChartStudent() {
+	if(selectedStud!=undefined)
+		action = 'fillChartStudentAsProf';
+	else
+		action = 'fillChartStudent';
+	var stats;
+	
+	config = {
+		'data': {
+			'action': action,
+			'selectedStud' : selectedStud
+		},
+		'success': function (reponse) {
+			stats =reponse;
+
+	        var data = google.visualization.arrayToDataTable([
+	          ['Task', 'Hours per Day'],
+	          ['Contacts initiés', stats.contactsinities],
+	          ['Contacts pris', stats.contactspris],
+	          ['Contacts refusés', stats.contactsrefuses]
+	        ]);
+
+	        var options = {
+	          //title: 'My Daily Activities'
+	        		chartArea:{width:'100%',height:'70%'},
+	        		legend:{position:'bottom'}
+	        };
+
+	        var chart = new google.visualization.PieChart(document.getElementById('piechartStudent'));
+
+	        chart.draw(data, options);
+		}
+	}
+	myApp.myajax(config);
+	
+}
+
+function remplirContacts() {
+	if(selectedStud!=undefined)
+		action = 'visualiserContactsAsProf';
+	else
+		action = 'visualiserContacts';
+	
+	myApp.myajax({
+		data : {
+			'action' : action,
+			'selectedStud' : selectedStud
+		},
+		success : function(data) {
+			dtContacts.clear();
+			dtContacts.rows.add(data).draw();
+		}
+	});
+}
+
+function fctExisteContactAccepte(){
+	if(selectedStud!=undefined)
+		action = 'existeContactAccepteAsProf';
+	else
+		action = 'existeContactAccepte';
+	
+	myApp.myajax({
+		data : {
+			'action' : action,
+			'selectedStud' : selectedStud
+		},
+		success : function(response) {
+			//console.log("contact accepte existe="+response);
+			existeContactAccepte=response;
+		}
+	});
+}
+
+function getPersonneContact(data,type,full){
+	if (data.personneContactDto===null){
+		return "-";
+	}else{
+		return data.personneContactDto.prenom+" "+data.personneContactDto.nom;
+	}
+}
+function getEmail(data,type,full){
+	if (data.personneContactDto===null){
+		return data.entrepriseDto.email;
+	}else{
+		return data.personneContactDto.email;
+	}
+}
+
+function getTel(data,type,full){
+	if (data.personneContactDto===null){
+		return data.entrepriseDto.tel;
+	}else{
+		return data.personneContactDto.tel;
+	}
+}
+
+function simpleSelectEtat(data,type,row,meta){
+	switch (data.etat){
+	case "stage_en_ordre":
+		simpleSelect='<div>Stage en ordre</div>';
+		break;
+	case "refuse":
+		simpleSelect='<div style="color:red">Refusé</div>';
+		break;
+	case "accepte":
+		simpleSelect='<div style="color:green"><b>Accepté</b></div>';
+		break;
+	case "initie":
+		if(existeContactAccepte!== null && existeContactAccepte){/*****************************************************************************************/
+			simpleSelect='<div>Initié</div>';
+			break;
+		}
+	case "pris":
+		if(existeContactAccepte!== null && existeContactAccepte){
+			simpleSelect='<div>Pris</div>';
+			break;
+		}
+		simpleSelect='<select class="simpleSelectEtat">'+
+							 '<option value="initie" '+putSelected("initie",data.etat)+'>Initié</option>'+
+							 '<option value="pris" '+putSelected("pris",data.etat)+'>Pris</option>'+
+							 '<option value="accepte" '+putSelected("accepte",data.etat)+'>Accepté</option>'+	 
+							 '<option value="refuse">Refusé</option>'+
+					 '</select> *';
+		break;
+	}
+	return simpleSelect;
+}
+
+/**
+ * renvoie la chaine 'selected' si les deux paramètres sont egaux.
+ * @param optionValue la valeur de la balise <option>
+ * @param dataValue la valeur de l'état du contact
+ * @returns la chaine 'selected' si optionValue est égale à dataValue, une chaine vide sinon
+ */
+function putSelected(optionValue,dataValue){
+	if (optionValue===dataValue){
+		return 'selected';
+	}
+	return '';
+	
+}
+
+//function getNbContacts(data,type,full){
+//	console.log(data.utilisateurDto);
+//	return data.utilisateurDto.nbContacts;
+//}
+
+	// ancienne version
+	/*
+	 * FrontEnd.onDisplayPage('pageDashboardStudent', function(){
+	 * $('#whoami').text(whoami.prenom +" " + whoami.nom); console.log('hey');
+	 * remplirContacts(); });
+	 * 
+	 * FrontEnd.onDisplayPage('pageDashboardTeacher', function(){
+	 * $('#whoami').text(whoami.prenom +" " + whoami.nom); });
+	 * 
+	 * function remplirContacts(){ var dtContacts=$('#dtContacts').DataTable({
+	 * destroy: true, bAutoWidth : false, select: { style: 'single' }, ajax:{
+	 * type:'POST', url:'/', dataSrc:"", data:{ 'action':'visualiserContacts', },
+	 * statusCode: { 422: util.err422, 401: util.err401, 500: util.err500 } },
+	 * columns: [ {"data" : "entreprise"}, {"data" : "etat"}, {"data" :
+	 * "personneContact"}, //{"data" : "email"}, //{"data" : "tel"} ], rowId:
+	 * 'idContact' }) }
+	 */

@@ -1,0 +1,291 @@
+package dal.dao;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import exceptions.OptimisticLockException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+public abstract class DaoGeneriqueImpl<E> implements DaoGenerique<E> {
+
+  @DependanceInjection
+  protected DalBackendServices dalBackendServices;
+
+  @DependanceInjection
+  protected DaoUtil daoUtil;
+
+  @DependanceInjection
+  AppContext appContext;
+
+  private final String NULL_INDICATOR = "_NULL_";
+
+  private Class<E> classe;
+  private String nomClasse;
+  private String nomTableDb;
+
+  private void initDaoGenerique() {
+    if (classe == null) {
+      classe = (Class<E>) appContext.getClassValueProp(
+          ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]
+              .getTypeName());
+    }
+    // TODO supprimer dep conc
+    nomClasse = classe.getSimpleName();
+    if (nomClasse.equals("UserImpl")) {
+      nomClasse = "UtilisateurImpl";
+    }
+    if (nomClasse.equals("PersonneContactImpl")) {
+      nomTableDb = "personnes_contact";
+    } else {
+      nomTableDb = nomClasse.substring(0, nomClasse.length() - 4).toLowerCase() + "s";
+    }
+  }
+
+
+  public E insert(E e) {
+    initDaoGenerique();
+    Map<String, Object> atts = getAttributeNamesAndValues(e);
+    Deque<Object> values = new ArrayDeque<Object>();
+
+    String query = "INSERT INTO stagify." + nomTableDb + "(";
+    for (String attName : atts.keySet()) {
+      if (!attName.equals("id_" + nomClasse.substring(0, nomClasse.length() - 4)
+          .replaceAll("(.)([A-Z])", "$1_$2").toLowerCase()) && !attName.contains("dto")) {
+        query += attName + ", ";
+        if (atts.get(attName) == null)
+          values.addLast(NULL_INDICATOR);
+        else
+          values.addLast(atts.get(attName));
+      }
+    }
+    query = query.substring(0, query.length() - 2);
+    query += ") VALUES(";
+    for (int i = 0; i < values.size(); i++) {
+      query += "?, ";
+    }
+    query = query.substring(0, query.length() - 2);
+    query += ")";
+    System.out.println(query);
+
+    PreparedStatement ps = dalBackendServices.getPreparedStatementForInsert(query);
+    setPreparedStatementObjects(ps, values);
+
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+          if (generatedKeys.next()) {
+            Method method = null;
+            try {
+              method = e.getClass().getDeclaredMethod(
+                  "setId" + nomClasse.substring(0, nomClasse.length() - 4), int.class);
+              method.setAccessible(true);
+              // TODO gestion exceptions
+            } catch (NoSuchMethodException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            } catch (SecurityException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            }
+            try {
+              method.invoke(e, generatedKeys.getInt(1));
+            } catch (IllegalAccessException ex) {
+              // TODO Auto-generated catch block
+              ex.printStackTrace();
+            } catch (IllegalArgumentException ex) {
+              // TODO Auto-generated catch block
+              ex.printStackTrace();
+            } catch (InvocationTargetException ex) {
+              // TODO Auto-generated catch block
+              ex.printStackTrace();
+            }
+          }
+        }
+        return e;
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      ex.printStackTrace();
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+  }
+
+
+  public E update(E e) {
+    initDaoGenerique();
+
+    Map<String, Object> atts = getAttributeNamesAndValues(e);
+    Deque<Object> values = new ArrayDeque<Object>();
+
+    String query = "UPDATE stagify." + nomTableDb + " SET ";
+    for (String attName : atts.keySet()) {
+      if ((!attName.equals("id_" + nomClasse.substring(0, nomClasse.length() - 4)
+          .replaceAll("(.)([A-Z])", "$1_$2").toLowerCase()) && !attName.contains("dto"))
+          && !attName.equals("num_version")) {
+        query += attName + " = ? , ";
+        if (atts.get(attName) == null)
+          values.addLast(NULL_INDICATOR);
+        else
+          values.addLast(atts.get(attName));
+      }
+    }
+    query +=
+        "num_version = num_version+1 WHERE id_" + nomClasse.substring(0, nomClasse.length() - 4)
+            .replaceAll("(.)([A-Z])", "$1_$2").toLowerCase() + "= ? AND num_version = ?";
+
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    setPreparedStatementObjects(ps, values);
+
+    try {
+      ps.setObject(values.size() + 1,
+          atts.get("id_" + nomClasse.substring(0, nomClasse.length() - 4).toLowerCase()));
+      ps.setObject(values.size() + 2, atts.get("num_version"));
+      // TODO gestion exception
+    } catch (SQLException e2) {
+      // TODO Auto-generated catch block
+      e2.printStackTrace();
+    }
+    System.out.println(query);
+    // TODO gestion exceptions
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        Method methSetNumVersion = null;
+        try {
+          methSetNumVersion = e.getClass().getDeclaredMethod("setNumVersion", int.class);
+          methSetNumVersion.setAccessible(true);
+        } catch (NoSuchMethodException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        } catch (SecurityException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
+        try {
+          methSetNumVersion.invoke(e, Integer.parseInt(atts.get("num_version") + "") + 1);
+        } catch (IllegalAccessException ex) {
+          // TODO Auto-generated catch block
+          ex.printStackTrace();
+        } catch (IllegalArgumentException ex) {
+          // TODO Auto-generated catch block
+          ex.printStackTrace();
+        } catch (InvocationTargetException ex) {
+          // TODO Auto-generated catch block
+          ex.printStackTrace();
+        }
+        return e;
+      } else if (codeRetour == 0) {
+        throw new OptimisticLockException(
+            "L'utilisateur a été modifié depuis le chargement de cette page",
+            // probleme?
+            get(Integer.parseInt(""
+                + atts.get("id_" + nomClasse.substring(0, nomClasse.length() - 4).toLowerCase()))));
+      } else {
+        throw new FatalException("Erreur de programmation");
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      ex.printStackTrace();
+      throw new FatalException("Erreur lors de l'accès DB update()");
+    }
+  }
+
+
+  public void delete(Object object) {
+    initDaoGenerique();
+  }
+
+
+  public E get(int id) {
+    initDaoGenerique();
+
+    String query = "SELECT * FROM stagify." + nomTableDb + " WHERE id_" + nomClasse
+        .substring(0, nomClasse.length() - 4).replaceAll("(.)([A-Z])", "$1_$2").toLowerCase()
+        + " = ?";
+
+    System.out.println(query);
+    List<E> objects = null;
+    try {
+      PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+      ps.setInt(1, id);
+      try (ResultSet resultSet = ps.executeQuery()) {
+        objects = daoUtil.setResultSet(classe, resultSet);
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      ex.printStackTrace();
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+    if (objects == null || objects.size() > 1) {
+      throw new FatalException("Erreur de programmation");
+    }
+    if (objects.isEmpty()) {
+      return null;
+    }
+    return objects.get(0);
+  }
+
+  public List<Object> getAll() {
+    return null;
+  }
+
+  private void setPreparedStatementObjects(PreparedStatement ps, Deque<Object> objects) {
+    int nbrValues = objects.size();
+    for (int i = 1; i <= nbrValues; i++) {
+      try {
+        Object att = objects.pollFirst();
+        if (att.getClass() == LocalDate.class) {
+          Timestamp date = Timestamp.valueOf(((LocalDate) att).atStartOfDay());
+          ps.setObject(i, date);
+        } else if (att.equals(NULL_INDICATOR)) {
+          ps.setObject(i, null);
+        } else {
+          ps.setObject(i, att);
+        }
+        // TODO gestion exception
+      } catch (SQLException ex) {
+        // TODO Auto-generated catch block
+        ex.printStackTrace();
+      }
+    }
+  }
+
+  private Map<String, Object> getAttributeNamesAndValues(Object object) {
+    Map<String, Object> atts = new HashMap<String, Object>();
+    for (Field field : classe.getDeclaredFields()) {
+      try {
+        field.setAccessible(true);
+        atts.put(field.getName().replaceAll("(.)([A-Z])", "$1_$2").toLowerCase(),
+            field.get(object));
+        // TODO gerer exceptions
+      } catch (IllegalArgumentException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    return atts;
+  }
+
+}

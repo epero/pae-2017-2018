@@ -1,0 +1,18 @@
+package dal.dao;
+
+import java.util.List;
+import biz.pdc.PersonneContactDto;
+
+public interface PersonneContactDao {
+  /**
+   * Récupère et renvoie une liste de personnes de contact pour une entreprise donnée
+   * 
+   * @param idEntreprise, l'id de l'entreprise concernée
+   * @return List<PersonneContactDto>
+   */
+  public List<PersonneContactDto> getPersonnesContactByIdEntreprise(int idEntreprise);
+
+  public PersonneContactDto insertPersonneContact(PersonneContactDto personneContact);
+
+  public PersonneContactDto insertPersonneContactAvecEntreprise(PersonneContactDto personneContact);
+}

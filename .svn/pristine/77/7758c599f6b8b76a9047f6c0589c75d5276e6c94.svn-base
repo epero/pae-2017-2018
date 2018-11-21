@@ -1,0 +1,17 @@
+package ihm.services;
+
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import com.owlike.genson.Genson;
+
+public interface UtilService {
+
+  public void renvoyerCodeErr(HttpServletResponse resp, Exception ex, int code) throws IOException;
+
+  public void renvoyerCodeErrEtMess(HttpServletResponse resp, String messageErreur, int code)
+      throws IOException;
+
+  public void renvoyerCodeErrEtMessEtObj(HttpServletResponse resp, Exception ex, int code,
+      Object object, Genson gens) throws IOException;
+
+}

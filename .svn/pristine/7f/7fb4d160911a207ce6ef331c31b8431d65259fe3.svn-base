@@ -1,0 +1,24 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+
+public interface EntrepriseUcc {
+
+  /**
+   * Récupère toutes les entreprises disponibles dans la base de données.
+   * 
+   * @return un liste d'objet EntrepriseDto si présent dans la base de données, null sinon
+   */
+  List<EntrepriseDto> visualiserEntreprises();
+
+  // EntrepriseDto creerEntreprise(EntrepriseDto entreprise);
+
+  /**
+   * Récupère une entreprise en base de données.
+   * 
+   * @param idEntreprise l'identifiant de l'entreprise
+   * @return un objet de type EntrepriseDto si l'entreprise existe, null sinon
+   */
+  EntrepriseDto getEntreprise(int idEntreprise);
+}

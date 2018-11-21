@@ -1,0 +1,79 @@
+
+		<body class="signup-page">
+			<div id="pageSignup" style="display:none">
+				<div class="login-box">
+					<div class="logo">
+						<a href="/"><b>Stagify</b></a>
+						<small>Gestion de stages d'observation</small>
+					</div>
+					<div class="row clear-fix">
+						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+							<div class="card">
+								<div class="header">
+									<h2 class="text-center">Créer un compte</h2>
+								</div>
+								<div class="notification"></div>
+								<div class="body">
+									<form id="form_advanced_validation" onsubmit="event.preventDefault();" method="post">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" name="pseudo" maxlength="30" minlength="1" required aria-required="true" type="text">
+												<label class="form-label">Pseudo</label>
+											</div>
+										</div>
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" id="mdp" name="mdp" maxlength="60" minlength="1" required aria-required="true" type="password">
+												<label class="form-label">Mot de passe</label>
+											</div>
+										</div>
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" id="mdpVerif" name="mdpVerif" maxlength="60" minlength="1" required aria-required="true" type="password">
+												<label class="form-label">Confirmation mot de passe</label>
+											</div>
+										</div>
+										<div class="form-group form-float input-inscription-prenom">
+											<div class="form-line">
+												<input class="form-control" name="nom" maxlength="50" minlength="1" required aria-required="true" type="text">
+												<label class="form-label">Nom</label>
+											</div>
+										</div>
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" name="prenom" maxlength="30" minlength="1" required aria-required="true" type="text">
+												<label class="form-label">Prénom</label>
+											</div>
+										</div>
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" name="dateNaissance" required aria-required="true" type="text">
+												<label class="form-label">Date de naissance</label>
+											</div>
+											<div class="help-info">Format JJ/MM/AAAA</div>
+										</div>
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input class="form-control" name="tel" required aria-required="true" type="text">
+												<label class="form-label">Téléphone</label>
+											</div>
+											<div class="help-info">Format +32</div>
+										</div>
+										<div class="form-group form-float input-inscription-email">
+											<div class="form-line">
+												<input class="form-control" name="email" required aria-required="true" type="text">
+												<label class="form-label">Email</label>
+											</div>
+											<div class="help-info">@vinci.be ou @student.vinci.be</div>
+										</div>
+										<button id="btn-signup" class="btn btn-block btn-lg bg-green waves-effect button-inscription-valider">S'inscrire</button>
+										<button id="btn-cancel" class="btn btn-block btn-lg bg-cyan waves-effect button-inscription-retour">Annuler</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</body>
+		

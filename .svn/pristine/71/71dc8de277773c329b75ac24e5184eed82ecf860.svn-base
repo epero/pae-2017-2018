@@ -1,0 +1,13 @@
+package biz.factory;
+
+import biz.user.UserDto;
+
+public interface BizFactory {
+
+  /**
+   * Fournit un UserDto à la couche DAL
+   * 
+   * @return
+   */
+  UserDto getUser();
+}

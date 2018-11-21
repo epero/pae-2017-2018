@@ -1,0 +1,96 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.entreprise.EntrepriseBiz;
+import biz.entreprise.EntrepriseDto;
+import dal.dao.EntrepriseDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class EntrepriseUccImpl implements EntrepriseUcc {
+
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @Override
+  public List<EntrepriseDto> visualiserEntreprises() {
+
+
+    List<EntrepriseDto> entrepriseDtos;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseDtos = entrepriseDao.getAllEntreprises();
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseDtos;
+  }
+
+  @Override
+  public EntrepriseDto getEntreprise(int idEntreprise) {
+
+    EntrepriseDto entrepriseDto;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseDto = entrepriseDao.getEntreprise(idEntreprise);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseDto;
+  }
+
+
+  @Override
+  public EntrepriseDto creerEntreprise(EntrepriseDto entreprise) {
+
+    EntrepriseBiz entrepriseAVerif = (EntrepriseBiz) entreprise;
+    Util.checkFormatString(entreprise.getDenomination(),
+        entrepriseAVerif.MAX_CARACTERES_DENOMINATION, "Le format de la dénomination est incorect");
+    Util.checkFormatString(entreprise.getAdresse(), entrepriseAVerif.MAX_CARACTERES_ADRESSE,
+        "Le format de l'adresse est incorrect");
+    // TODO : Verifier le format INTEGER du champ numéro
+    /*
+     * Util.checkFormatString(entreprise.getNumero(), entrepriseAVerif.MAX_CARACTERES_NUMERO,
+     * "Le format du numéro est incorrect");
+     */
+    Util.checkFormatString(entreprise.getBoite(), entrepriseAVerif.MAX_CARACTERES_BOITE,
+        "Le format de la boite est incorrect");
+    Util.checkFormatString(entreprise.getCodePostal(), entrepriseAVerif.MAX_CARACTERES_CODE_POSTAL,
+        entrepriseAVerif.REGEX_CODE_POSTAL, "Le format du code postal est incorrect");
+    Util.checkFormatString(entreprise.getVille(), entrepriseAVerif.MAX_CARACTERES_VILLE,
+        "Le format de la ville est incorrect");
+    Util.checkFormatString(entreprise.getEmail(), entrepriseAVerif.MAX_CARACTERES_EMAIL,
+        entrepriseAVerif.REGEX_EMAIL, "Le format de l'adresse email est incorrect");
+    Util.checkFormatString(entreprise.getTel(), entrepriseAVerif.MAX_CARACTERES_TEL,
+        entrepriseAVerif.REGEX_TEL, "Le format du numéro de téléphone est incorrect");
+    entreprise.setEstBlackListe(false);
+
+    EntrepriseDto entrepriseARenv;
+    try {
+      dalServices.startTransaction();
+      entrepriseARenv = entrepriseDao.insertEntreprise(entreprise);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+
+    return entrepriseARenv;
+  }
+
+
+}

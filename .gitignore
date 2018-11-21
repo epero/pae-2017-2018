@@ -1,0 +1,9 @@
+.settings
+bin
+conf/guillaume.properties
+conf/new_db.properties
+lib
+.classpath
+.project
+build.xml
+Logs.*

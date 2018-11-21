@@ -1,0 +1,27 @@
+package biz.ucc;
+
+import biz.user.UserBiz;
+import biz.user.UserDTO;
+import dal.dao.UserDAO;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class UserUCCImpl implements UserUCC {
+
+  @DependanceInjection
+  private UserDAO userDAO;
+
+  @Override
+  public UserDTO seConnecter(String pseudo, String mdp) {
+    // TODO Auto-generated method stub
+    Util.checkString(pseudo);
+    Util.checkString(mdp);
+    UserBiz userAVerf = (UserBiz) userDAO.getUser(pseudo);
+
+    if (userAVerf != null && userAVerf.verifierMotDePasse(mdp)) {
+      return userAVerf;
+    }
+    return null;
+  }
+
+}

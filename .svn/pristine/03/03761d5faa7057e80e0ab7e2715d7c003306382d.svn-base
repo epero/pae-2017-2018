@@ -1,0 +1,19 @@
+package biz.contact;
+
+public interface ContactBiz extends ContactDto {
+  enum Etat {
+    INITIE("initie"), PRIS("pris"), REFUSE("refuse"), ACCEPTE("accepte"), STAGE_EN_ORDRE(
+        "stage_en_ordre");
+
+    private final String nomEtat;
+
+    @Override
+    public String toString() {
+      return this.nomEtat;
+    }
+
+    Etat(String nomEtat) {
+      this.nomEtat = nomEtat;
+    }
+  }
+}

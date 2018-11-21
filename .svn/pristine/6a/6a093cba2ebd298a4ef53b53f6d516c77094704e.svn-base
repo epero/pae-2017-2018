@@ -1,0 +1,46 @@
+package biz.ucc;
+
+import java.util.HashMap;
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+
+public interface EntrepriseUcc {
+
+  /**
+   * Récupère toutes les entreprises disponibles dans la base de données.
+   * 
+   * @return un liste d'objet EntrepriseDto si présent dans la base de données, null sinon
+   */
+  List<EntrepriseDto> visualiserEntreprises();
+
+  // TODO javadoc
+  List<HashMap<String, Object>> visualiserEntreprisesAsProf(String anneeAcademique);
+
+  // EntrepriseDto creerEntreprise(EntrepriseDto entreprise);
+
+  /**
+   * Récupère une entreprise en base de données.
+   * 
+   * @param idEntreprise l'identifiant de l'entreprise
+   * @return un objet de type EntrepriseDto si l'entreprise existe, null sinon
+   */
+  EntrepriseDto getEntreprise(int idEntreprise);
+
+  /**
+   * Change l'état de l'entreprise en "blacklisté".
+   * 
+   * @param entreprise l'entreprise à blacklisté
+   * @return un objet de type EntrepriseDto si l'entreprise a été blacklisté, null sinon
+   */
+  EntrepriseDto blacklistEntreprise(EntrepriseDto entreprise);
+
+  /**
+   * Insere une entreprise dans la db.
+   * 
+   * @param entreprise l'entreprise à inserer
+   * @return l'entreprise inséree si l'insertion a réussie, null sinon
+   */
+  EntrepriseDto insertEntreprise(EntrepriseDto entreprise);
+
+
+}

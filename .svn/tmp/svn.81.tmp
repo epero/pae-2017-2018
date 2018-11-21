@@ -1,0 +1,106 @@
+package dal.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import biz.factory.BizFactory;
+import biz.pdc.PersonneContactDto;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+
+class PersonneContactDaoImpl implements PersonneContactDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendService;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+
+
+  @Override
+  public List<PersonneContactDto> getPersonnesContactByIdEntreprise(int idEntreprise) {
+    String query =
+        "SELECT pc.id_personne_contact, pc.nom, pc.prenom, pc.tel, pc.email, pc.entreprise "
+            + "FROM stagify.personnes_contact pc WHERE pc.entreprise = ?";
+    PreparedStatement ps = dalBackendService.getPreparedStatement(query);
+    List<PersonneContactDto> personnes;
+    DaoUtil.setPreparedStatement(ps, idEntreprise);
+
+    try (ResultSet rs = ps.executeQuery()) {
+      PersonneContactDto personne = factory.getPersonneContactVide();
+      personnes = (List<PersonneContactDto>) (Object) DaoUtil.setResultSet(personne.getClass(), rs);
+
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      throw new FatalException(
+          "Erreur lors de la récupération des personnes de contact dans la base de données.");
+    }
+    return personnes;
+  }
+
+  public PersonneContactDto insertPersonneContact(PersonneContactDto personneContact) {
+
+    String query = "INSERT INTO stagify.personnes_contact(nom, prenom, tel, email, entreprise)"
+        + "VALUES (?,?,?,?,?)";
+    PreparedStatement ps = dalBackendService.getPreparedStatementForInsert(query);
+    DaoUtil.setPreparedStatement(ps, personneContact.getNom(), personneContact.getPrenom(),
+        personneContact.getTel(), personneContact.getEmail(), personneContact.getEntreprise());
+
+    try {
+      int codeRetour = ps.executeUpdate();
+      System.out.println(codeRetour);
+      if (codeRetour == 1) {
+        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+          if (generatedKeys.next()) {
+            System.out.println(generatedKeys);
+            personneContact.setIdPersonneContact((generatedKeys.getInt(1)));
+          }
+        }
+        return personneContact;
+      } else {
+        throw new FatalException("Erreur de programmaton");
+      }
+
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      System.out.println("Erreur lors de l'insertion d'une personne de contact");
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+
+
+  }
+
+  @Override
+  public PersonneContactDto getPersonneContact(int idPersonneContact) {
+    String query = "SELECT id_personne_contact, nom, prenom, tel, email, entreprise "
+        + "FROM stagify.personnes_contact WHERE id_personne_contact= ?";
+    PreparedStatement ps = dalBackendService.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, idPersonneContact);
+    try (ResultSet rs = ps.executeQuery();) {
+      // if (rs.next()) {
+      PersonneContactDto personneContact = factory.getPersonneContactVide();
+      List<Object> listePersonnesContact = DaoUtil.setResultSet(personneContact.getClass(), rs);
+      switch (listePersonnesContact.size()) {
+        case 0:
+          return null;
+        case 1:
+          return (PersonneContactDto) listePersonnesContact.get(0);
+        default:
+          throw new FatalException(
+              "clef primaire entreprise dupliquée,contactez administrateur système");
+      }
+      // } else {
+      // return null;
+      // }
+
+    } catch (SQLException ex) {
+      System.out.println("Erreur lors de la récupération d'une personne de contact");
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+  }
+}

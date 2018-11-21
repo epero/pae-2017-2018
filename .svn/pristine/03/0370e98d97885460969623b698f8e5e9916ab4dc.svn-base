@@ -1,0 +1,34 @@
+package biz.ucc;
+
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import biz.user.UserDTO;
+import dal.dao.UserDAO;
+import dal.services.MockDALServices;
+import util.AppContext;
+import util.AppContext.dependanceInjection;
+
+public class UserUCCImplTest {
+	//private UserDTO user;
+	//@dependanceInjection
+	//private UserDAO userDAOMock;
+	
+	private UserUCC userUCC;
+	
+	@Before
+	public void setUp() throws Exception {
+		AppContext.loadProps("test.properties");
+		AppContext.newInstance(userUCC);
+		
+	}
+
+	@Test
+	public void testSeConnecter() {
+		UserDTO user= userUCC.seConnecter("pierre","pierre");
+		assertNotNull(user);
+	}
+
+}

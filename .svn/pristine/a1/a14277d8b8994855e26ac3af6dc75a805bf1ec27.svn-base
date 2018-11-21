@@ -1,0 +1,15 @@
+$(function() {
+	
+	$('#logout').click(function(){
+		config = {
+
+					'data': {
+						'action': 'logout'
+					}
+				 }
+		util.myajax(config);
+		whoami = null;
+		FrontEnd.displayPage('pageLogin');
+	});
+
+});

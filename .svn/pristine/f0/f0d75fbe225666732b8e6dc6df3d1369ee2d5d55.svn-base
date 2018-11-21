@@ -1,0 +1,107 @@
+function whoAmI(){
+	var currentPage;
+	if(FrontEnd.currentPage() === null)
+		currentPage = null;
+	else
+		currentPage = FrontEnd.currentPage().attr('id');
+	console.log(currentPage);
+	config = {
+		'data': {
+			'action': 'whoami',
+			'currentPage': currentPage
+		},
+		'success': function(reponse){
+			whoami=reponse.user;
+			FrontEnd.displayPage(reponse.currentPage);
+			if(whoami!=null){
+				$('body').removeClass().toggleClass('theme-teal');
+				showNavBar();
+			}
+			/*if(reponse.user === null) {
+				FrontEnd.displayPage(reponse.currentPage);
+			} else {
+				whoami = reponse;
+				$('body').removeClass().toggleClass('theme-teal');
+				showNavBar();
+				$.when(reponse).then(function() {
+					if(whoami.estAdmin === true){
+						$('#student-dashboard').show();
+						Frontend.displayPage('pageDashboardTeacher');
+					}else{
+						FrontEnd.displayPage('pageDashboardStudent');
+					}
+				});
+				
+			}*/
+		}
+	}
+		
+	return util.myajax(config);
+}
+
+$(function() {
+	//let whoami = null;
+    //whoAmI();
+
+	FrontEnd.onDisplayPage('pageLogin', function(){
+		$('body').removeClass().toggleClass('login-page');
+	});
+	
+	$('#btnLogin').click(function(){
+		var isvalid = $('#formLogin').valid();
+		if(isvalid){
+			config = {
+						'data': {
+									'action': 'signin',
+									'userAVerif': util.form2Json($('#formLogin'))
+						},
+						'success': function(reponse){
+							if(reponse === null){
+								$('.notification').html('<div class="alert alert-dismissible bg-red text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Le nom d\'utilisateur ou le mot de passe est incorrect.</div>');
+							} else {
+								whoami = reponse;
+								$('body').removeClass().toggleClass('theme-teal');
+								showNavBar();
+								$.when(reponse).then(function() {
+									if(whoami.estAdmin === true){
+										$('#student-dashboard').show();
+										FrontEnd.displayPage('pageDashboardTeacher');
+									}else{
+										FrontEnd.displayPage('pageDashboardStudent');
+									}
+								});
+								
+							}
+						}
+					 }
+			util.myajax(config);
+		}
+	});
+	
+	$('#btnSignUp').click(function(){
+		FrontEnd.displayPage('pageSignup');
+
+	});
+	
+	$("button").click(function() {
+		$('.notification').empty();
+	});
+
+	//Jquery validation messages
+	$('#formLogin').validate({
+		messages: {
+			pseudo: "Veuillez indiquer votre pseudo",
+		mdp: "Veuillez indiquer votre mot de passe"
+		},
+		highlight: function (input) {
+            $(input).parents('.form-line').addClass('error');
+        },
+        unhighlight: function (input) {
+            $(input).parents('.form-line').removeClass('error');
+        },
+        errorPlacement: function (error, element) {
+            $(element).parents('.form-line').after(error);
+        }
+	});
+
+});

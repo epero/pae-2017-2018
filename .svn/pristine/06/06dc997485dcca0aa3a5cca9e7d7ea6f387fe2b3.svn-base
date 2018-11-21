@@ -1,0 +1,132 @@
+$(function() {
+    //let whoami = null;
+    
+    FrontEnd.onDisplayPage('pageSignup', function(){
+		$('body').removeClass().toggleClass('signup-page');
+	});
+
+    $('#btn-signup').click(function(e){
+        var isvalid = $('#form_advanced_validation').valid();
+    	if(isvalid){
+	        config = {
+	                    'data': {
+	                                'action': 'signup',
+	                                'newUser': util.form2Json($('#form_advanced_validation'))
+	                    },
+	                    'success': function(reponse){
+	                    	whoAmI();
+	                    }
+	        }
+	        util.myajax(config);
+        }
+    });
+
+    $('#btn-cancel').click(function(){
+        FrontEnd.displayPage('pageLogin');
+    });
+    
+
+    //Date picker configuration
+    /*$('.datepicker').bootstrapMaterialDatePicker({
+        format: 'DD/MM/YYYY',
+        weekStart: 0,
+        time: false,
+        clear: true,
+        cancelText: 'Annuler',
+        okText: 'Valider',
+        maxDate: new Date(),
+        currentDate: new Date(1990, 0, 1)
+    });*/
+
+    //Jquery validation règles & messages
+    $("#form_advanced_validation").validate({
+        rules: {
+            pseudo: {
+                required: true,
+                minlength: 1,
+                maxlength: 30
+            },
+            mdp: {
+                required: true,
+                minlength: 1,
+                maxlength: 60
+            },
+            mdpVerif: {
+                required: true,
+                minlength: 1,
+                maxlength: 60,
+                equalTo: "#mdp"
+            },
+            nom: {
+                required: true,
+                minlength: 1,
+                maxlength: 50
+            },
+            prenom: {
+                required: true,
+                minlength: 1,
+                maxlength: 30
+            },
+            dateNaissance: {
+                required: true,
+                dateNaissanceVerif: true
+            },
+            tel: {
+                required: true,
+                telVerif: true,
+            },
+            email: {
+                minlength: 1,
+                maxlength: 100,
+                required: true,
+                vinciMail: true
+            }
+        },
+        messages: {
+            pseudo: "Veuillez indiquer votre pseudo",
+            mdp: "Veuillez indiquer votre mot de passe",
+            mdpVerif: {
+                required: "Veuillez indiquer votre confirmation de mot de passe",
+                equalTo: "Les mots de passe ne correspondent pas"
+            },
+            nom: "Veuillez indiquer votre nom",
+            prenom: "Veuillez indiquer votre prénom",
+            dateNaissance: {
+                required: "Veuillez indiquer votre date de naissance",
+                dateNaissanceVerif: "Le date de naissance doit respecter le format indiqué"
+            },
+            tel: {
+                required: "Veuillez indiquer votre numéro de téléphone",
+                telVerif: "Le numéro doit commencer par +32 et contenir entre 11 et 12 chiffres",
+            },
+            email: {
+                required: "Veuillez indiquer votre email",
+                vinciMail: "Seul vinci.be ou student.vinci.be est accepté"
+            },
+        },
+        highlight: function (input) {
+            $(input).parents('.form-line').addClass('error');
+        },
+        unhighlight: function (input) {
+            $(input).parents('.form-line').removeClass('error');
+        },
+        errorPlacement: function (error, element) {
+            $(element).parents('.form-group').append(error);
+        }
+    });
+});
+
+//vérification input email jquery validation
+jQuery.validator.addMethod("vinciMail", function(value, element){
+    return value.match(/^.+@(vinci|student.vinci).be$/);
+}, 'Seul vinci.be ou student.vinci.be est accepté');
+
+//vérification input tel jquery validation
+jQuery.validator.addMethod("telVerif", function(value, element){
+    return value.match(/^\+32[0-9]{8,9}$/);
+}, 'Le numéro doit commencer par +32 et contenir entre 11 et 12 chiffres');
+
+//vérification input dateNaissance jquery validation
+jQuery.validator.addMethod("dateNaissanceVerif", function(value, element){
+    return value.match(/^([0-2][0-9]|3[01])\/(0[0-9]|1[0-2])\/[0-9]{4}$/);
+}, 'Le date de naissance doit respecter le format indiqué');

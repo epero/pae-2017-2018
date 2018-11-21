@@ -1,0 +1,107 @@
+var util=(function() {
+
+    myajax = function(config) {
+        $.extend(config, {
+            type: 'POST',
+            url: '/',
+            statusCode: {
+                422: err422,
+                401: err401,
+                500: err500
+            }
+        });
+		
+		return $.ajax(config);
+    }
+    
+    
+    function err500(message) {
+		FrontEnd.displayPage('pageFatalError');
+        $('#err500').text(message.responseText);
+    }
+    
+    function err422(message) {
+		$('.notification').html('<div class="alert alert-dismissible bg-red text-center "><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+message.responseText+'</div>');
+    }
+    
+    function err401(message) {
+		$('.notification').html('<div class="alert alert-dismissible bg-red text-center "><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+message.responseText+'</div>');
+    }
+    
+    function form2Json(racine){
+    	var o={};
+    	
+    	racine.find('input[type=text],input[type=date],input[type=password],textarea').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = el.val();
+    	});
+    	
+    	racine.find('input[type=number]').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = parseFloat(el.val());
+    	});
+    	
+    	racine.find('select[multiple]').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = (el.val()===null?[]:el.val());
+    	});
+    	
+    	racine.find('select:not([multiple])').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = (el.val()==null?"":el.val());
+    	});
+    	
+    	racine.find('input[type=checkbox]').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = el.prop('checked');
+    	});
+    	
+    	racine.find('input[type=radio]').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = null;
+    	});
+    	
+    	/*racine.find('input[type=radio]:checked').each(function(i, el) {
+    		el=$(el);
+    		o[el.attr('name')] = el.val();
+    	});*/
+    	racine.find("input[type='radio']").each(function(){
+    		if($(this).is(":checked"))
+        		o[el.attr('name')] = el.val();
+		});
+    	
+    	return JSON.stringify(o);
+    }
+    
+    function json2Form(racine, json){
+    	for (var key in js){
+    		var value = js[key];
+    		var el = racine.find('[name="' + key + '"]');
+    		
+    		if (el.is('input[type=number],input[type=text],input[type=date],input[type=password],textarea')){
+    			el.val(value);
+    		} else if (el.is('select[multiple]')) {
+    			el.val(value.length === 0 ? null : value);
+    		} else if (el.is('select:not([multiple])')) {
+    			el.val(value === null ? "" : value);
+    		} else if (el.is('input[type=checkbox]')) {
+    			el.prop('checked', value);
+    		} else if (el.is('input[type=radio]')) {
+    			if (value === null) {
+    				el.prop('checked', false);
+    			} else {
+    				el.filter('[value="' + value + '"]').prop('checked', true);
+    			}
+    		}
+    	}
+    }
+    
+    return {
+    	//err500:err500,
+    	//err400:err400,
+		myajax:myajax,
+		json2From:json2Form,
+		form2Json:form2Json
+		
+	}
+})();

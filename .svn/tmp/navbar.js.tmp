@@ -1,0 +1,44 @@
+function showNavBar(){
+    $('nav').show();
+}
+
+function hideNavBar(){
+    $('nav').hide();
+}
+
+$(function() {
+
+    $.when(whoami).then(function() {
+        if(whoami.estAdmin === true){
+            $('#student-dashboard').show();
+        }
+    });
+
+    $('#logout').click(function(){
+		config = {
+
+					'data': {
+						'action': 'logout'
+					}
+				 }
+		util.myajax(config);
+        whoami = null;
+        hideNavBar();
+		FrontEnd.displayPage('pageLogin');
+    });
+    
+    
+    $('#personnesContact').click(function(){
+<<<<<<< .mine
+    	//console.log("$('#personnesContact').click");
+=======
+        console.log("$('#personnesContact').click");
+        $('#pageEntreprises').removeClass();
+        $('#pageEntreprises').toggleClass("col-lg-12 col-md-12 col-sm-12 col-xs-12");
+        $(".new-contact-form").css('display', 'none');
+		$("#btnAddRow").css('display', 'block');
+>>>>>>> .r218
+		FrontEnd.displayPage('pageEntreprises');
+		//FrontEnd.displayPage('pagePersonnesContact');
+    });
+});

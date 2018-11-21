@@ -1,0 +1,4 @@
+	<div id="pageCongrats" style="display: none">
+		Congrats<span id="whoami"></span>
+		<button id='logout'>Deco</button>
+	</div>

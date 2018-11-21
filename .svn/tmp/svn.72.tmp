@@ -1,0 +1,415 @@
+package ihm.servlet;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import com.auth0.jwt.JWTSigner;
+import com.auth0.jwt.JWTVerifier;
+import com.owlike.genson.Genson;
+import com.owlike.genson.GensonBuilder;
+import biz.contact.ContactDto;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import biz.pdc.PersonneContactDto;
+import biz.ucc.ContactUcc;
+import biz.ucc.EntrepriseUcc;
+import biz.ucc.PersonneContactUcc;
+import biz.ucc.UserUcc;
+import biz.user.UserDto;
+import biz.user.UserImpl;
+import exceptions.BizException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+
+class DispatcherServlet extends DefaultServlet {
+
+  @DependanceInjection
+  private AppContext appContext;
+  @DependanceInjection
+  private UserUcc userUcc;
+  @DependanceInjection
+  private BizFactory factory;
+  @DependanceInjection
+  private PersonneContactUcc personneContactUcc;
+  @DependanceInjection
+  private EntrepriseUcc entrepriseUcc;
+  @DependanceInjection
+  private ContactUcc contactUcc;
+
+  private String json;
+  private Genson genson;
+  private Map<String, Object> retour;
+
+  public DispatcherServlet() {
+    genson = new GensonBuilder().useDateFormat(new SimpleDateFormat("dd-MM-yyyy")).create();
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    // TODO Parcourir les dossiers www et www/js pour créer les tag <script> contenant le nom de
+    // fichier .js et les append au prefooter.html
+    try {
+      if (req.getRequestURI().equals("/")) {
+        Files.copy(new File("inc/header.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/navbar.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_login.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_signup.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_dashboard.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_entreprises.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_fatalerror.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/_donneesPerso.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/prefooter.html").toPath(), resp.getOutputStream());
+        Files.copy(new File("inc/footer.html").toPath(), resp.getOutputStream());
+      } else {
+        super.doGet(req, resp);
+      }
+    } catch (ServletException ex) {
+      renvoyerCodeErr(resp, ex, 500);
+    }
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    resp.setContentType("text/html; charset=UTF-8");
+    String action = req.getParameter("action");
+    try {
+      switch (action) {
+        case "signin":
+          signin(req, resp);
+          // System.out.println("resp2=" + resp);
+          break;
+        case "signup":
+          signup(req, resp);
+          break;
+        case "whoami":
+          whoami(req, resp);
+          break;
+        case "logout":
+          logout(req, resp);
+          break;
+        case "visualiserEntreprises":
+          visualiserEntreprises(req, resp);
+          break;
+        case "getEntreprise":
+          getEntreprise(req, resp);
+          break;
+        case "visualiserPersonneContact":
+          visualiserPersonnesContact(req, resp);
+          break;
+        case "creerPersonneContact":
+          creerPersonneContact(req, resp);
+          break;
+        case "visualiserContacts":
+          visualiserContacts(req, resp);
+          break;
+        case "creerContact":
+          creerContact(req, resp);
+          break;
+        default:
+          break;
+      }
+    } catch (BizException ex) {
+      renvoyerCodeErr(resp, ex, 422);
+    } catch (Exception ex) {
+      renvoyerCodeErr(resp, ex, 500);
+    }
+  }
+
+
+  private void creerContact(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    json = req.getParameter("newContact");
+    ContactDto contactAVerif = factory.getContactVide();
+    // TODO Vérifier que l'idUtilisateur soit bien le siens
+    Genson ge = new GensonBuilder().useIndentation(true).create();
+    ge.deserializeInto(json, contactAVerif);
+
+    ContactDto contactDb = contactUcc.creerContactUtilisateur(contactAVerif);
+
+    if (contactDb != null) {
+      Genson gen = new GensonBuilder().useIndentation(true).create();
+      json = gen.serialize(contactDb);
+    }
+
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void visualiserContacts(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
+    System.out.println("hey");
+    UserDto whoami = getCurrentUser(req);
+    List<ContactDto> contacts = contactUcc.listerContactUtilisateur(whoami);
+    json = genson.serialize(contacts);
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  public void creerPersonneContact(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
+
+    json = req.getParameter("newPersonneContact");
+    PersonneContactDto personneContactAVerif = factory.getPersonneContactVide();
+
+    Genson ge = new GensonBuilder().useIndentation(true).create();
+    ge.deserializeInto(json, personneContactAVerif);
+    PersonneContactDto personneContactDb =
+        personneContactUcc.creerPersonneContact(personneContactAVerif);
+    System.out.println("personneContactAVerif : " + personneContactDb);
+    if (personneContactDb != null) {
+      Genson gen = new GensonBuilder().useIndentation(true).create();
+      json = gen.serialize(personneContactDb);
+
+    }
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void visualiserEntreprises(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
+    List<EntrepriseDto> entreprises = entrepriseUcc.visualiserEntreprises();
+    // TESTS??
+    json = genson.serialize(entreprises);
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void getEntreprise(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    int idEntreprise = Integer.parseInt(req.getParameter("idEntreprise"));
+    EntrepriseDto entrepriseDto = entrepriseUcc.getEntreprise(idEntreprise);
+    if (entrepriseDto != null) {
+      Genson gen = new GensonBuilder().useIndentation(true).create();
+      json = gen.serialize(entrepriseDto);
+    }
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void visualiserPersonnesContact(HttpServletRequest req, HttpServletResponse resp)
+      throws IOException {
+    int idEntreprise = Integer.parseInt(req.getParameter("idEntreprise"));
+    List<PersonneContactDto> personnes =
+        personneContactUcc.visualiserPersonnesContact(idEntreprise);
+    if (personnes == null || personnes.isEmpty()) {
+      // reponse dans le cas où il n'y a pas de personnes de contact
+      System.out.println("Aucune personne de contact");
+    }
+    // test retour
+
+    String json = genson.serialize(personnes);
+    // System.out.println(json);
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void renvoyerCodeErr(HttpServletResponse resp, Exception ex, int code)
+      throws IOException {
+    json = ex.getMessage();
+    resp.setStatus(code);
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+    ex.printStackTrace();
+    System.out.println(ex.getMessage());
+  }
+
+  private void renvoyerCodeErr(HttpServletResponse resp, String messageErreur, int code)
+      throws IOException {
+    resp.setStatus(code);
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(messageErreur.getBytes(Charset.forName("UTF-8")));
+  }
+
+
+  private void signin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    // String login = req.getParameter("user");
+    // String password = req.getParameter("pswd");
+
+    json = req.getParameter("userAVerif");
+    UserDto userAVerif = factory.getUserVide();
+    genson.deserializeInto(json, userAVerif);
+
+    // si l utilisateur peut se connecter
+    UserDto userDb = userUcc.seConnecter(userAVerif);
+
+    if (userDb != null) {
+      Genson ge =
+          new GensonBuilder().useIndentation(true).exclude("mdp").exclude("tel").exclude("email")
+              .exclude("nbContacts").exclude("dateInscription").exclude("dateNaissance").create();
+      json = ge.serialize(userDb);
+
+      startSession(userDb, req, resp);
+      resp.setContentType("application/json");
+      resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+    } else {
+      // jenkins n'aime pas la sérialisation d'une valeur null
+      // json = genson.serialize(userDb);
+      renvoyerCodeErr(resp, "Le login ou le mdp est incorrect", 401);
+    }
+    // resp.setContentType("application/json");
+    // resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void signup(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    // TODO gérer la session lors de l'inscription
+
+    json = req.getParameter("newUser");
+    UserDto userAVerif = factory.getUserVide();
+
+    Genson ge = new GensonBuilder().useIndentation(true).exclude("dateNaissance").create();
+    ge.deserializeInto(json, userAVerif);
+
+
+    userAVerif.setDateNaissance(Util.jsonToLocalDate(json, "dateNaissance"));
+
+    UserDto userDb = userUcc.sinscrire(userAVerif);
+    if (userDb != null) {
+      Genson gen =
+          new GensonBuilder().useIndentation(true).exclude("mdp").exclude("tel").exclude("email")
+              .exclude("nbContacts").exclude("dateInscription").exclude("dateNaissance").create();
+      json = gen.serialize(userDb);
+
+      startSession(userDb, req, resp);
+    }
+
+    resp.setContentType("application/json");
+    resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+  }
+
+  private void whoami(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    UserDto whoami = getCurrentUser(req);
+    String currentPage = req.getParameter("currentPage");
+    retour = new HashMap<>();
+    if (whoami != null) {
+      if (!whoami.getEstAdmin()) {
+        if (currentPage.isEmpty()) {
+          retour.put("currentPage", "pageDashboardStudent");
+        } else {
+          retour.put("currentPage", currentPage);
+        }
+      }
+      Genson ge = new GensonBuilder().useIndentation(true).exclude("mdp", UserImpl.class)
+          .exclude("dateNaissance", UserImpl.class).exclude("tel", UserImpl.class)
+          .exclude("email", UserImpl.class).exclude("dateInscription", UserImpl.class)
+          .exclude("nbContacts", UserImpl.class).create();
+      retour.put("user", whoami);
+      // gerer le cas ou utilisateur déjà connecté veut aller au login ou signup => empecher...code
+      // de retour?
+      // json = ge.serialize(whoami);
+      json = ge.serialize(retour);
+      resp.setContentType("application/json");
+      resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+
+    } else {
+      retour.put("user", null);
+      if (currentPage.isEmpty()) {
+        retour.put("currentPage", "pageLogin");
+        json = genson.serialize(retour);
+        resp.setContentType("application/json");
+        resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+      } else if (currentPage.equals("pageLogin") || currentPage.equals("pageSignup")) {
+        retour.put("currentPage", currentPage);
+        json = genson.serialize(retour);
+        resp.setContentType("application/json");
+        resp.getOutputStream().write(json.getBytes(Charset.forName("UTF-8")));
+      } else {
+        renvoyerCodeErr(resp, "Vous devez vous connecter pour accéder à cette page", 401);
+      }
+    }
+  }
+
+  private void startSession(UserDto user, HttpServletRequest req, HttpServletResponse resp) {
+    req.getSession().setAttribute("userDb", user);
+
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("idUtilisateur", user.getIdUtilisateur());
+    claims.put("ip", req.getRemoteAddr());
+
+    String secret = appContext.getValueProp("JWTSecret");
+
+    String token = new JWTSigner(secret).sign(claims);
+
+    Cookie cookie = new Cookie("token", token);
+    cookie.setPath("/");
+    cookie.setMaxAge(60 * 60 * 24 * 365);
+    resp.addCookie(cookie);
+  }
+
+  private UserDto getCurrentUser(HttpServletRequest req) {
+
+    UserDto whoami = (UserDto) req.getSession().getAttribute("userDb");
+    if (whoami != null) {
+      return whoami;
+    }
+    String token = null;
+
+    Cookie[] cookies = req.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if ("token".equals(cookie.getName()) && cookie.getSecure()) {
+          token = cookie.getValue();
+        } else if ("token".equals(cookie.getName()) && token == null) {
+          token = cookie.getValue();
+        }
+      }
+    }
+    if (token == null) {
+      return null;
+    }
+
+    try {
+      Map<String, Object> decodedPayload =
+          new JWTVerifier(appContext.getValueProp("JWTSecret")).verify(token);
+      /**
+       * stocké dans token idealement: date expiration id qui a distribue le token
+       */
+      if (!req.getRemoteAddr().equals(decodedPayload.get("ip"))) {
+        return null;
+      }
+
+      UserDto userAVerif = factory.getUserVide();
+      userAVerif.setIdUtilisateur((int) decodedPayload.get("idUtilisateur"));
+      whoami = userUcc.trouverUtilisateurById(userAVerif);
+
+      if (whoami != null) {
+        req.getSession().setAttribute("userDb", whoami);
+      }
+    } catch (Exception ex) {
+      System.out.println("pas de token");
+      ex.printStackTrace();
+    }
+    System.out.println(whoami.toString());
+    return whoami;
+  }
+
+  private void logout(HttpServletRequest req, HttpServletResponse resp) {
+    req.getSession().invalidate();
+    Cookie cookie = new Cookie("token", "");
+    cookie.setPath("/");
+    cookie.setMaxAge(0);
+    resp.addCookie(cookie);
+  }
+
+
+  // 1. session?
+  // 2.1 si oui --> authentifie
+  // 2.2 sinon token?
+  // 2.2.1 pas de token --> login
+  // 2.2.2 token --> utilise le token pour recréer une nouvelle session, chercher user db et mettre
+  // dans session ()
+
+}

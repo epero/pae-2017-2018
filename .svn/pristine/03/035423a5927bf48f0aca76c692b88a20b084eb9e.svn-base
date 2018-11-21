@@ -1,0 +1,179 @@
+package biz.ucc;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Logger;
+import biz.contact.ContactBiz;
+import biz.contact.ContactDto;
+import biz.entreprise.EntrepriseDto;
+import biz.user.UserDto;
+import dal.dao.ContactDao;
+import dal.dao.EntrepriseDao;
+import dal.dao.PersonneContactDao;
+import dal.dao.UserDao;
+import dal.services.DalServices;
+import exceptions.BizException;
+import exceptions.OptimisticLockException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class ContactUccImpl implements ContactUcc {
+  @DependanceInjection
+  private ContactDao contactDao;
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+  @DependanceInjection
+  private UserDao userDao;
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+  @DependanceInjection
+  private DalServices dalServices;
+
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    Util.checkObject(utilisateur);
+    List<ContactDto> listeContactDto;
+
+    try {
+      dalServices.startTransaction();
+      UserDto userAVerifier = userDao.getUser(utilisateur.getIdUtilisateur());
+      listeContactDto = contactDao.listerContactUtilisateur(userAVerifier);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return listeContactDto;
+  }
+
+  @Override
+  public ContactDto creerContactUtilisateur(ContactDto contact) {
+    Util.checkObject(contact);
+    Util.checkObject(contact.getEntrepriseDto());
+    Util.checkObject(contact.getUtilisateurDto());
+    // ContactBiz contactAVerif = (ContactBiz) contact;
+
+    contact.setEtat(Util.Etat.INITIE.toString());
+    contact.setAnneeAcademique(Util.localDateToYear(LocalDate.now()));
+    contact.setNumVersion(1);
+
+    ContactDto contactARenv;
+    try {
+      dalServices.startTransaction();
+      UserDto userAVerifier = userDao.getUser(contact.getUtilisateurDto().getIdUtilisateur());
+      EntrepriseDto entrepriseAVerifier =
+          entrepriseDao.getEntreprise(contact.getEntrepriseDto().getIdEntreprise());
+      if (userAVerifier == null || entrepriseAVerifier == null) {
+        throw new BizException("L'entreprise ou l'utilisateur n'existe pas");
+      }
+      int idUtilisateur = userAVerifier.getIdUtilisateur();
+      int idEntreprise = entrepriseAVerifier.getIdEntreprise();
+
+      if (contactDao.existeContactsAccepteOuEnOrdre(idUtilisateur)) {
+        throw new BizException("Vous ne pouvez plus initier de contact");
+      }
+
+      if (contactDao.existeContactForEntrepriseEtUser(idUtilisateur, idEntreprise)) {
+        throw new BizException("Vous avez déjà initié un contact avec cette entreprise");
+      }
+
+      if (contact.getPersonneContactDto() != null) {
+        if (!personneContactDao.personneDeContactAppartientEntreprise(
+            contact.getPersonneContactDto().getIdPersonneContact(), idEntreprise)) {
+          throw new BizException("Cette personne de contact n'appartient pas à cette entreprise");
+        }
+        contactARenv = contactDao.insertContactUtilisateurAvecPersonneContact(contact);
+      } else {
+        contactARenv = contactDao.insertContactUtilisateurSansPersonneContact(contact);
+      }
+      userDao.incrementNumberOfContacts(userAVerifier);
+      contactARenv.setUtilisateurDto(userDao.getUser(userAVerifier.getIdUtilisateur()));
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return contactARenv;
+  }
+
+  @Override
+  public ContactDto updateEtatContact(ContactDto contactDto) {
+    Util.checkObject(contactDto);
+    boolean updateEstValide = false;
+    try {
+      dalServices.startTransaction();
+      // checks pour voir si on peut faire l'update(si le contact courant est refuse ou stage en
+      // ordre on ne peut plus changer d'etat)
+      ContactDto contactDbInitial = contactDao.getContact(contactDto.getIdContact());
+      if (contactDbInitial == null) {
+        throw new BizException("Le contact n'existe pas");
+      }
+      if (contactDbInitial.getNumVersion() != contactDto.getNumVersion()) {
+        throw new OptimisticLockException("Le contact a été modifié entre temps", contactDbInitial);
+      }
+      String etatInitial = contactDbInitial.getEtat();
+      if (etatInitial.equals(ContactBiz.Etat.INITIE.toString())) {
+        if (contactDto.getEtat().equals(ContactBiz.Etat.PRIS.toString())
+            || contactDto.getEtat().equals(ContactBiz.Etat.ACCEPTE.toString())
+            || contactDto.getEtat().equals(ContactBiz.Etat.REFUSE.toString())) {
+          updateEstValide = true;
+        }
+      } else if (etatInitial.equals(ContactBiz.Etat.PRIS.toString())) {
+        if (contactDto.getEtat().equals(ContactBiz.Etat.ACCEPTE.toString())
+            || contactDto.getEtat().equals(ContactBiz.Etat.REFUSE.toString())) {
+          updateEstValide = true;
+        }
+      } else if (etatInitial.equals(ContactBiz.Etat.ACCEPTE.toString())) {
+        if (contactDto.getEtat().equals(ContactBiz.Etat.STAGE_EN_ORDRE.toString())) {
+          updateEstValide = true;
+        }
+      }
+      // check si il existe pas deja un autre contact à l'état accepte ou stage en ordre
+      if (contactDao.existeContactAvecEtat(contactDto.getUtilisateurDto().getIdUtilisateur(),
+          ContactBiz.Etat.ACCEPTE.toString())
+          || contactDao.existeContactAvecEtat(contactDto.getUtilisateurDto().getIdUtilisateur(),
+              ContactBiz.Etat.STAGE_EN_ORDRE.toString())) {
+        throw new BizException(
+            "Vous ne pouvez pas modifer l'état de ce contact car existe déjà un autre contact accepté ou stage en ordre ");
+      }
+      if (updateEstValide) {
+        return contactDao.updateEtatContact(contactDto);
+      } else {
+        throw new BizException(
+            "Vous ne pouvez pas modfier l'état de ce contact car mauvaise transition ou l'état est le même que le précedent");
+      }
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+  }
+
+  @Override
+  public boolean existeContactAccepte(int idUser) {
+    try {
+      dalServices.startTransaction();
+      return contactDao.existeContactAvecEtat(idUser, Util.Etat.ACCEPTE.toString());
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+  }
+
+  // @Override
+  // public List<ContactDto> listerContactUtilisateur(int idUtilisateur) {
+  // return contactDao.listerContactUtilisateur(idUtilisateur);
+  // }
+
+
+}

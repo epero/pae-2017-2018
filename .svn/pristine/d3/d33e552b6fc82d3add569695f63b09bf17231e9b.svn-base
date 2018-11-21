@@ -1,0 +1,131 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import exceptions.BizException;
+import exceptions.FatalException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class ContactUccImplTest {
+  @DependanceInjection
+  private ContactUcc contactUcc;
+  @DependanceInjection
+  private BizFactory factory;
+
+  private ContactDto contactAVerif;
+  private UserDto user;
+  List<ContactDto> listeContacts;
+
+  // TODO Test concernant la méthode d'incrémentation du nb_contacts
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+    contactAVerif = factory.getContactVide();
+    user = factory.getUserVide();
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateur1() {
+    contactAVerif.setUtilisateur(-1);
+    contactAVerif.setEntreprise(2);
+    contactAVerif.setPersonneContact(1);
+
+    contactUcc.creerContactUtilisateur(contactAVerif);
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateur2() {
+    contactAVerif.setUtilisateur(1);
+    contactAVerif.setEntreprise(-1);
+    contactAVerif.setPersonneContact(1);
+
+    contactUcc.creerContactUtilisateur(contactAVerif);
+  }
+
+  @Test(expected = BizException.class)
+  public void testCreerContactUtilisateur3() {
+    contactAVerif.setUtilisateur(1);
+    contactAVerif.setEntreprise(1);
+    contactAVerif.setPersonneContact(1);
+
+    contactUcc.creerContactUtilisateur(contactAVerif);
+  }
+
+  @Test(expected = BizException.class)
+  public void testCreerContactUtilisateur4() {
+    contactAVerif.setUtilisateur(1);
+    contactAVerif.setEntreprise(1);
+    contactAVerif.setPersonneContact(2);
+
+    contactUcc.creerContactUtilisateur(contactAVerif);
+  }
+
+  @Test(expected = FatalException.class)
+  public void testCreerContactUtilisateu5() {
+    contactAVerif.setUtilisateur(Integer.MAX_VALUE);
+    contactAVerif.setEntreprise(2);
+    contactAVerif.setPersonneContact(1);
+    contactUcc.creerContactUtilisateur(contactAVerif);
+  }
+
+  public void testCreerContactUtilisateu6() {
+    contactAVerif.setUtilisateur(2);
+    contactAVerif.setEntreprise(1);
+    contactAVerif.setPersonneContact(1);
+    assertNotNull(contactUcc.creerContactUtilisateur(contactAVerif));
+  }
+
+  public void testCreerContactUtilisateu7() {
+    contactAVerif.setUtilisateur(2);
+    contactAVerif.setEntreprise(1);
+    contactAVerif.setPersonneContact(0);
+    assertNotNull(contactUcc.creerContactUtilisateur(contactAVerif));
+  }
+
+
+  @Test(expected = FatalException.class)
+  public void testListerContactUtilisateur1() {
+    contactUcc.listerContactUtilisateur(null);
+  }
+
+  // @Test(expected = BizException.class)
+  // public void testListerContactUtilisateur2() {
+  // user.setIdUtilisateur(-1);
+  // contactUcc.listerContactUtilisateur(user);
+  // }
+
+  @Test
+  public void testListerContactUtilisateur3() {
+    user.setIdUtilisateur(15);
+    listeContacts = contactUcc.listerContactUtilisateur(user);
+    assertTrue(listeContacts.isEmpty());
+  }
+
+  @Test
+  public void testListerContactUtilisateur4() {
+    user.setIdUtilisateur(16);
+    listeContacts = contactUcc.listerContactUtilisateur(user);
+    assertTrue(!listeContacts.isEmpty());
+  }
+
+  // Test pour parcourir l'entiereté de la methode 'listerContactUtilisateur(UserDto)'
+  // @Test(expected = CeciNestPasUneException.class)
+  @Test(expected = FatalException.class)
+  public void testListerContactUtilisateur5() {
+    UserDto user = factory.getUserVide();
+    user.setIdUtilisateur(17);
+    listeContacts = contactUcc.listerContactUtilisateur(user);
+  }
+
+
+}

@@ -1,0 +1,11 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+
+public interface EntrepriseUcc {
+
+  List<EntrepriseDto> visualiserEntreprises();
+
+  EntrepriseDto creerEntreprise(EntrepriseDto entreprise);
+}

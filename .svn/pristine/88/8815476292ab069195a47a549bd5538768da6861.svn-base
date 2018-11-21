@@ -1,0 +1,18 @@
+#Dependancy injection
+dal.services.DalServices = dal.services.MockDalServicesImpl
+biz.factory.BizFactory = biz.factory.BizFactoryImpl
+biz.entreprise.EntrepriseDto = biz.entreprise.EntrepriseImpl
+biz.ucc.UserUcc = biz.ucc.UserUccImpl
+biz.ucc.ContactUcc = biz.ucc.ContactUccImpl
+biz.ucc.PersonneContactUcc = biz.ucc.PersonneContactUccImpl
+biz.ucc.EntrepriseUcc = biz.ucc.EntrepriseUccImpl
+biz.ucc.StageUcc = biz.ucc.StageUccImpl
+
+dal.dao.UserDao = dal.dao.MockUserDaoImpl
+dal.dao.ContactDao = dal.dao.MockContactDaoImpl
+dal.dao.EntrepriseDao = dal.dao.MockEntrepriseDaoImpl
+dal.dao.PersonneContactDao = dal.dao.MockPersonneContactDaoImpl
+dal.dao.StageDao = dal.dao.MockStageDaoImpl
+
+util.AppContext = util.AppContext
+util.Util = util.Util

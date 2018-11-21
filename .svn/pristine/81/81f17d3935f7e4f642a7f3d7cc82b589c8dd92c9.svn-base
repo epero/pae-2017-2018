@@ -1,0 +1,556 @@
+var dtContacts;
+var simpleSelect;
+var selectedStud;
+var existeContactAccepteOuEnOrdre;
+
+var dtPersContDash;
+
+var idPersContDash = null;
+var nomPersContDash = null;
+var contactAccepte = null;
+var contactStageEnOrdre = null;
+
+var stage;
+
+FrontEnd.onInitPage('pageDashboardStudent', function() {
+	//console.log('onInitPage - pageDashBoardStudent');
+	dtPersContDash = initPersonnesContactDT("#dtPersConDash");
+	
+	$('#confirmStage').on('click', function () {
+		var isValid = $('#formAdresseStage').valid();
+		
+		if (idPersContDash == undefined){
+			// set notification
+			var msg = "Veuillez préciser le responsable";
+			setAndShowNotification(msg, this); // this => button
+			return;
+		}
+
+		if(isValid && idPersContDash!=undefined){
+			
+			if(selectedStud!=undefined)
+				action = 'confirmDataStageAsProf';
+			else
+				action = 'confirmDataStage';
+			
+			var dataStage = myApp.form2Json($('#formAdresseStage'));
+			dataStage = JSON.parse(dataStage);
+			dataStage['responsableDto'] = {
+					"@class":"biz.pdc.PersonneContactImpl",
+					idPersonneContact : idPersContDash
+			};
+			dataStage['entrepriseDto'] = {
+					"@class":"biz.entreprise.EntrepriseImpl",
+					idEntreprise : contactAccepte.entreprise
+			};
+
+			config = {
+					'data': {
+						'action': action,
+						'stage' : JSON.stringify(dataStage),
+						'contactAccepte' : JSON.stringify(contactAccepte),
+						'selectedStud' : selectedStud
+					},
+					'success': function (reponse) {
+						remplirContacts();
+					},	            
+					error: function(e,error, errorThrown) {  
+		                if(e.status&&e.status==409){
+		                	var reponse = JSON.parse(e.responseText);
+		            		//$('.notification').html('<div class="alert alert-dismissible bg-red text-center "><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+reponse.message+'</div>');
+		            		//$('.notification').show();
+		            		setAndShowNotification(reponse.message + " - " + reponse.objetDb.idContact, $('#confirmStage'));
+		                }
+						remplirContacts();
+		           }
+				}
+			myApp.myajax(config);
+		}
+	});
+	
+	// add row
+	$('#addRowDash').click(function () {
+		dtPersContDash.rows().deselect();
+
+		$('#txtInitiatePersContDash').show();
+
+		var rowHtml = $("#newRow").find("tr")[0].outerHTML
+		$('#btnCancelAddPersContDash').show();
+		$('#btnAddPerContDash').show();
+		$('#addRowDash').hide();
+		dtPersContDash.row.add($(rowHtml)).draw();
+		dtPersContDash.select.style('api');
+	});
+
+	$('#btnCancelAddPersContDash').on('click', function () {
+		cancelAddPersContDash();
+	});
+
+	$('#btnAddPerContDash').on('click', function () {
+		var isvalid = $("#formNewPersContDash").valid();
+		var json = JSON.parse(myApp.form2Json($("#formNewPersContDash")));
+		//Ajout de l'id entreprise dans JSON
+		json.entreprise = contactAccepte.entreprise;
+		console.log(json.entreprise);
+		var dataJson = JSON.stringify(json);
+
+		if (isvalid) {
+
+			config = {
+				'data': {
+					'action': 'creerPersonneContact',
+					'newPersonneContact': dataJson,
+				},
+				'success': function (reponse) {
+
+
+					var row = dtPersContDash.row.add(reponse);
+					row.draw();
+					row.select();
+					$(".notificationPDCAjoute").html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>La personne de contact a été ajouté avec succès</div>');
+					cancelAddPersContDash();
+				}
+			}
+			myApp.myajax(config);
+		}
+	});
+	
+	dtPersContDash.on('select', function (e, dt) {
+		if (dt != undefined) {
+			
+			idPersContDash = dt.id();
+
+			var idx = dt.cell('.selected', 0).index();
+			var data = dt.row(idx.row).data();
+			nomPersContDash = data.prenom + " " + data.nom;
+		}
+	});
+
+	dtPersContDash.on('deselect', function (e, dt, type, indexes) {
+		idPersContDash = null;
+		nomPersContDash = null;
+	});
+	
+	dtContacts = $('#dtContacts').DataTable({
+		bAutoWidth : false,
+		info : false,
+		language : {
+			"search" : "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_ entrées",
+			"paginate": {
+				"first":      "Premier",
+				"last":       "Dernier",
+				"next":       "Suivant",
+				"previous":   "Précédent"
+			}
+		},
+		/*select : {
+			style : 'single'
+		},*/
+		data : "",
+		columns : [ 
+			{"data" : "entrepriseDto.denomination"},
+			{"data" : null,
+			 "render" : simpleSelectEtat
+			}, 
+			{"data" : getPersonneContact},
+			{"data" : getEmail},
+			{"data" : getTel}
+		],
+		rowId : 'idContact'
+	});
+	
+    $('#initContact').click(function(){
+		if(selectedStud!=undefined)
+			rowSelectorEtudiant = selectedStud;
+        $('#pageEntreprises').removeClass();
+        $('#pageEntreprises').toggleClass("col-lg-12 col-md-12 col-sm-12 col-xs-12");
+        $('#confirmInitiateContact').hide();
+        $('#btnsContactEntreprises').show();
+		FrontEnd.displayPage('pageEntreprises');
+    });
+    
+    $('#selectEtud').on('change', function (e) {
+		$('#cardDtPersCont').hide();
+		$('#cardPieChart').hide();
+		//clearDataContacts()
+		cancelAddPersContDash();
+        selectedStud = $(this).find("option:checked").val();
+		remplirContacts();
+	});
+    
+    $('#btnSauverEtat').click(function(){
+		if(selectedStud!=undefined)
+			action = 'modifierEtatContactAsProf';
+		else
+			action = 'modifierEtatContact';
+		var listeContacts = [];
+    	$('table tbody tr td select:not([multiple])').each(function(i,el){
+    		el=$(el);
+  		  	var rowData = dtContacts.row( el.parent().parent() ).data();
+  		  	console.log(rowData);
+  		  	if(el.val()!==rowData.etat){
+  		  		rowData.etat = el.val();
+  		  		listeContacts.push(rowData);
+  		  	}
+  		  	
+  		  	
+    	});	
+  		config={
+  				'data':{
+  					'action': action,
+  					'contacts': JSON.stringify(listeContacts), 
+  					'selectedStud' : selectedStud
+  				},
+  				success:function(response){
+  					//location.reload(false);
+  					remplirContacts();
+  				},
+	            error: function(e,error, errorThrown) {  
+	                if(e.status&&e.status==409){
+	                	var reponse = JSON.parse(e.responseText);
+	            		//$('.notification').html('<div class="alert alert-dismissible bg-red text-center "><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+reponse.message+'</div>');
+	            		//$('.notification').show();
+	            		setAndShowNotification(reponse.message + " - " + reponse.objetDb.idContact, $('#btnSauverEtat'));
+	                }
+					remplirContacts();
+	           }
+  		}
+  		myApp.myajax(config);
+    });
+
+	FrontEnd.onDisplayPage('pageDashboardStudent', function() {
+		//
+		//existeContactAccepte=fctExisteContactAccepte();
+		console.log('onDisplayPage - pageDashBoardStudent');
+		$('body').removeClass().toggleClass('theme-teal');
+		showNavBar();
+		$('.form-line').removeClass('error focused');
+		if(myApp.getWhoAmI().estAdmin){		
+			
+			myApp.myajax({
+				data : {
+					'action' : 'visualiserStudCurYear'
+				},
+				success : function(reponse) {
+					//console.log(reponse);
+					var data = $.map(reponse, function (obj) {
+						  obj.id = obj.id || obj.idUtilisateur; // replace pk with your identifier
+						  obj.text = obj.text || obj.nom; // replace name with the property used for the text
+						  return obj;
+					});
+					
+					$('#selectEtud').select2({
+						width: '35%',
+						data: data,
+						theme: "bootstrap",
+						val : data[0]
+						//placeholder: "Selectionnez un étudiant"
+					});
+					$('#divSelectEtud').show();
+					if (rowSelectorEtudiant !== undefined){
+						$('#selectEtud').val(rowSelectorEtudiant).trigger("change");
+					} else {
+						selectedStud = data[0].id;
+						
+						remplirContacts();
+					}
+				}
+			});
+
+		}	
+		else{
+			remplirContacts();
+		}
+	});
+	
+	FrontEnd.onLeavePage('pageDashboardStudent', function() {
+		$('#divSelectEtud').hide();
+		$('#selectEtud').val(null);
+		selectedStud = undefined;
+		dtPersContDash.rows().deselect();
+		$('#formAdresseStage input[name=dateSignature]').val('');
+		cancelAddPersContDash();
+
+		$('#nbContacts').text("Contacts : ");
+		$('#notification').html('');
+		$('#notifContact').html('');
+		
+		$('#cardDtPersCont').hide();
+		$('#cardPieChart').hide();
+		//clearDataContacts()
+		$('#cardStageEnOrdre').hide();
+	});
+
+	/*FrontEnd.onDisplayPage('pageDashboardTeacher', function() {
+		//console.log('onDisplayPage - pageDashBoardTeacher');
+		$('#whoami').text(myApp.getWhoAmI().prenom + " " + myApp.getWhoAmI().nom);
+		remplirContacts();
+	});*/
+	
+});
+
+
+
+function drawChartStudent() {
+	$('#cardPieChart').show();
+    google.charts.load('current', {'packages':['corechart']});
+	google.charts.setOnLoadCallback(drawVisualization);
+	
+	function drawVisualization(){
+		if(selectedStud!=undefined)
+			action = 'fillChartStudentAsProf';
+		else
+			action = 'fillChartStudent';
+		var stats;
+		
+		config = {
+			'data': {
+				'action': action,
+				'selectedStud' : selectedStud
+			},
+			'success': function (reponse) {
+				stats =reponse;
+
+		        var data = google.visualization.arrayToDataTable([
+		          ['Task', 'Hours per Day'],
+		          ['Contacts initiés', stats.contactsinities],
+		          ['Contacts pris', stats.contactspris],
+		          ['Contacts refusés', stats.contactsrefuses]
+		        ]);
+
+		        var options = {
+		          //title: 'My Daily Activities'
+		        		chartArea:{width:'100%',height:'70%'},
+		        		legend:{position:'bottom'}
+		        };
+
+		        var chart = new google.visualization.PieChart(document.getElementById('piechartStudent'));
+
+		        chart.draw(data, options);
+			}
+		}
+		myApp.myajax(config);
+	}
+	
+}
+
+function showStageEnOrdre(){
+	//hideFinalStates();
+	if(selectedStud!=undefined)
+		action = 'visualiserStageAsProf';
+	else
+		action = 'visualiserStage';
+	
+	config={
+		'data':{
+			'action': action,
+			'selectedStud' : selectedStud
+		},
+		success:function(response){
+			$('#cardStageEnOrdre').show();
+			stage = response;
+			date = new Date(stage.dateSignature.monthValue + " " + stage.dateSignature.dayOfMonth + " " + stage.dateSignature.year);
+			stage.dateSignature = dateFormatee(date);
+			stage.responsablePrenom = stage.responsableDto.prenom;
+			stage.responsableNom = stage.responsableDto.nom;
+			stage.responsableEmail = stage.responsableDto.email;
+			stage.responsableTel = stage.responsableDto.tel;
+			$('#nomEntreprise').text(stage.entrepriseDto.denomination);
+			myApp.json2Form($('#form-stage-en-ordre'), stage);
+		}
+	}
+	myApp.myajax(config);
+}
+
+function drawFormStage(){
+	$('#cardDtPersCont').show();
+	remplirPersonnesContact(contactAccepte.entreprise ,dtPersContDash);
+	preremplirAdresseStage(contactAccepte.entrepriseDto);	
+}
+
+function preremplirAdresseStage(entreprise){
+	console.log(entreprise);
+	if (entreprise.boite !== null){
+		$('#formAdresseStage input[name=boite]').val(entreprise.boite).parent().addClass("focused");
+	}
+	$('#formAdresseStage input[name=adresse]').val(entreprise.adresse).parent().addClass("focused");
+	$('#formAdresseStage input[name=numero]').val(entreprise.numero).parent().addClass("focused");
+	$('#formAdresseStage input[name=codePostal]').val(entreprise.codePostal).parent().addClass("focused");
+	$('#formAdresseStage input[name=ville]').val(entreprise.ville).parent().addClass("focused");	
+}
+
+function remplirContacts() {
+
+	if(selectedStud!=undefined)
+		action = 'visualiserContactsAsProf';
+	else
+		action = 'visualiserContacts';
+	//existeContactAccepte=fctExisteContactAccepte();
+	//console.log(existeContactAccepte);
+	existeContactAccepteOuEnOrdre = false;
+
+	myApp.myajax({
+		data : {
+			'action' : action,
+			'selectedStud' : selectedStud
+		},
+		success : function(data) {
+			$.each(data, function(i, item) {
+				if(data[i].etat==="accepte"||data[i].etat==="stage_en_ordre")
+					existeContactAccepteOuEnOrdre = true;
+			});
+			clearDataContacts();
+			$('#nbContacts').text('Contacts : ' + data.length);	
+			dtContacts.clear();
+			dtContacts.rows.add(data).draw();
+			$('#cardDtPersCont').hide();
+			$('#cardPieChart').hide();
+			$('#cardStageEnOrdre').hide();
+			if (contactAccepte!=null)
+				drawFormStage();
+			else if (contactStageEnOrdre!=null)
+				showStageEnOrdre();
+			else
+				drawChartStudent();
+		}
+	});
+}
+
+
+
+function fctExisteContactAccepte(){
+	console.log(selectedStud);
+	if(selectedStud!=undefined)
+		action = 'existeContactAccepteAsProf';
+	else
+		action = 'existeContactAccepte';
+	
+	myApp.myajax({
+		data : {
+			'action' : action,
+			'selectedStud' : selectedStud
+		},
+		success : function(response) {
+			//console.log("contact accepte existe="+response);
+			existeContactAccepte=response;
+		}
+	});
+}
+
+function getPersonneContact(data,type,full){
+	if (data.personneContactDto===null){
+		return "-";
+	}else{
+		return data.personneContactDto.prenom+" "+data.personneContactDto.nom;
+	}
+}
+function getEmail(data,type,full){
+	if (data.personneContactDto===null){
+		return data.entrepriseDto.email;
+	}else{
+		return data.personneContactDto.email;
+	}
+}
+
+function getTel(data,type,full){
+	if (data.personneContactDto===null){
+		return data.entrepriseDto.tel;
+	}else{
+		return data.personneContactDto.tel;
+	}
+}
+
+function simpleSelectEtat(data,type,row,meta){
+	switch (data.etat){
+	case "stage_en_ordre":
+		simpleSelect='<div>Stage en ordre</div>';
+		contactStageEnOrdre = data;
+		break;
+	case "refuse":
+		simpleSelect='<div style="color:red">Refusé</div>';
+		break;
+	case "accepte":
+		simpleSelect='<div style="color:green"><b>Accepté</b></div>';
+		contactAccepte = data;
+		//hideFinalStates();
+		break;
+	case "initie":
+		if(existeContactAccepteOuEnOrdre!== null && existeContactAccepteOuEnOrdre){/*****************************************************************************************/
+			simpleSelect='<div>Initié</div>';
+			break;
+		}
+	case "pris":
+		if(existeContactAccepteOuEnOrdre!== null && existeContactAccepteOuEnOrdre){
+			simpleSelect='<div>Pris</div>';
+			break;
+		}
+		simpleSelect='<select class="simpleSelectEtat">'+
+							 '<option value="initie" '+putSelected("initie",data.etat)+'>Initié</option>'+
+							 '<option value="pris" '+putSelected("pris",data.etat)+'>Pris</option>'+
+							 '<option value="accepte" '+putSelected("accepte",data.etat)+'>Accepté</option>'+	 
+							 '<option value="refuse">Refusé</option>'+
+					 '</select> *';
+		break;
+	}
+	return simpleSelect;
+}
+
+/**
+ * renvoie la chaine 'selected' si les deux paramètres sont egaux.
+ * @param optionValue la valeur de la balise <option>
+ * @param dataValue la valeur de l'état du contact
+ * @returns la chaine 'selected' si optionValue est égale à dataValue, une chaine vide sinon
+ */
+function putSelected(optionValue,dataValue){
+	if (optionValue===dataValue){
+		return 'selected';
+	}
+	return '';
+	
+}
+
+function cancelAddPersContDash() {
+	$('#btnAddPerContDash').hide();
+	$('#btnCancelAddPersContDash').hide();
+	$('#txtInitiatePersContDash').hide();
+	dtPersContDash.row($("#-1")).remove().draw();
+	$('#addRowDash').show();
+	dtPersContDash.select.style('single');
+}
+
+
+function clearDataContacts(){
+	contactAccepte = null;
+	contactStageEnOrdre = null;
+}
+
+/*function hideFinalStates(){
+	$('#initContact').hide();
+	$('#btnSauverEtat').hide();
+	$('#saveText').hide();
+}*/
+
+//function getNbContacts(data,type,full){
+//	console.log(data.utilisateurDto);
+//	return data.utilisateurDto.nbContacts;
+//}
+
+	// ancienne version
+	/*
+	 * FrontEnd.onDisplayPage('pageDashboardStudent', function(){
+	 * $('#whoami').text(whoami.prenom +" " + whoami.nom); console.log('hey');
+	 * remplirContacts(); });
+	 * 
+	 * FrontEnd.onDisplayPage('pageDashboardTeacher', function(){
+	 * $('#whoami').text(whoami.prenom +" " + whoami.nom); });
+	 * 
+	 * function remplirContacts(){ var dtContacts=$('#dtContacts').DataTable({
+	 * destroy: true, bAutoWidth : false, select: { style: 'single' }, ajax:{
+	 * type:'POST', url:'/', dataSrc:"", data:{ 'action':'visualiserContacts', },
+	 * statusCode: { 422: util.err422, 401: util.err401, 500: util.err500 } },
+	 * columns: [ {"data" : "entreprise"}, {"data" : "etat"}, {"data" :
+	 * "personneContact"}, //{"data" : "email"}, //{"data" : "tel"} ], rowId:
+	 * 'idContact' }) }
+	 */

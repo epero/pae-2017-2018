@@ -1,0 +1,61 @@
+package dal.services;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import exceptions.FatalException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+class DalServicesImpl implements DalServices {
+
+  private Connection conn = null;
+  @DependanceInjection
+  private AppContext appContext;
+
+  private void connect() {
+    if (conn != null)
+      return;
+    try {
+      Class.forName(appContext.getValueProp("driverClassName"));
+    } catch (ClassNotFoundException ex) {
+      ex.printStackTrace();
+      System.out.println("Driver Postgresql manquant !");
+      throw new FatalException();
+    }
+
+    try {
+      conn = DriverManager.getConnection(appContext.getValueProp("url"),
+          appContext.getValueProp("ndcDB"), appContext.getValueProp("mdpDB"));
+    } catch (SQLException ex) {
+      System.out.println("Erreur de connexion à la base de données");
+      ex.printStackTrace();
+      throw new FatalException();
+    }
+  }
+
+  /**
+   * Envoie de la requête en PreparedStatement à la base de données.
+   * 
+   * @param query Requête envoyée à la base de données
+   * @return Une query préparée avec la string passée en paramètre
+   * 
+   */
+  public PreparedStatement getPreparedStatement(String query) {
+    connect();
+    if (conn != null) {
+    // probleme: a chaque fois qu'on appelle la methode getPreparedStatement on crée un nouveau PreparedStatement --> couteux?
+      PreparedStatement ps = null;
+      try {
+        ps = conn.prepareStatement(query); 
+      } catch (SQLException ex) {
+        System.out.println("Erreur SQL");
+        ex.printStackTrace();
+        throw new FatalException();
+      }
+      return ps;
+    }
+    return null;
+  }
+}

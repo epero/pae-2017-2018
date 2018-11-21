@@ -1,0 +1,43 @@
+package dal.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+import biz.factory.BizFactory;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+public class EntrepriseDaoImpl implements EntrepriseDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendService;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Override
+  public List<EntrepriseDto> getAllEntreprises() {
+    String query =
+        "SELECT id_entreprise, denomination, ville, email, tel, est_black_liste FROM stagify.entreprises";
+    PreparedStatement ps = dalBackendService.getPreparedStatement(query);
+    List<EntrepriseDto> entreprises;
+
+    try (ResultSet rs = ps.executeQuery()) {
+      EntrepriseDto entreprise = factory.getEntrepriseVide();
+      System.out.println(entreprise);
+      entreprises = (List<EntrepriseDto>) (Object) DaoUtil.setResultSet(entreprise.getClass(), rs);
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new FatalException(
+          "Erreur lors de la récupération des entreprises dans la base de données.");
+    }
+    return entreprises;
+  }
+
+
+}

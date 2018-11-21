@@ -1,0 +1,398 @@
+var dtEntreprises;
+var dtPersonnesContact;
+
+let idEntreprise = null;
+let idPersonneContact = null;
+let denominationEntreprise = null;
+let nomPersonneContact = null;
+
+var geocoder;
+var map;
+var marker;
+var infowindow;
+
+
+
+function initMap() {
+	geocoder = new google.maps.Geocoder();
+	var latlng = new google.maps.LatLng(-34.397, 150.644);
+	var mapOptions = {
+		zoom: 8,
+		center: latlng
+	}
+	map = new google.maps.Map(document.getElementById('map'), mapOptions);
+}
+
+function codeAddress(entreprise) {
+	//var address = document.getElementById('address').value;
+	geocoder.geocode({ 'address': entreprise.numero + " " + entreprise.adresse + " " + entreprise.codePostal + " " + entreprise.ville }, function (results, status) {
+		if (status == 'OK') {
+			map.setCenter(results[0].geometry.location);
+			marker = new google.maps.Marker({
+				map: map,
+				position: results[0].geometry.location,
+				animation: google.maps.Animation.DROP,
+				title: entreprise.denomination
+			});
+
+			setInfoWindow(entreprise);
+			infowindow.open(map, marker);
+		} else {
+			//TODO renvoyer message d'erreur
+			alert('Geocode was not successful for the following reason: ' + status);
+		}
+	});
+}
+
+function setInfoWindow(entreprise) {
+	infowindow = new google.maps.InfoWindow({
+		content: '<div>' + entreprise.numero + " " + entreprise.adresse + "<br>" + entreprise.codePostal + " " + entreprise.ville + '</div>'
+		//maxWidth: 200
+	});
+
+	marker.addListener('click', function () {
+		infowindow.open(map, marker);
+	});
+}
+
+function removeMarker() {
+	if (marker != null && marker != undefined) {
+		marker.setMap(null);
+		marker = null;
+	}
+}
+
+FrontEnd.onInitPage('pageEntreprises', function () {
+	initMap();
+
+	dtEntreprises = $('#dtEntreprises').DataTable({
+		bAutoWidth: false,
+		autoWidth: false,
+		responsive: true,
+		"scrollY": "200px",
+		"scrollCollapse": true,
+		"paging": false,
+		info: false,
+		"dom": "<'pull-left'f>t",
+		language: {
+			"search": "Rechercher : ",
+			"emptyTable": "Pas de données disponibles dans la table",
+			"lengthMenu": "Montrer _MENU_",
+			"paginate": {
+				"first": "Premier",
+				"last": "Dernier",
+				"next": "Suivant",
+				"previous": "Précédent"
+			}
+		},
+		select: {
+			style: 'single',
+			info: false
+		},
+		data: "",
+		columns: [{
+			"data": "denomination"
+		},
+			//{"data" : "ville"},
+			//{"data" : "email"},
+			//{ "data" : "tel"},
+			//{"data" : "estBlackListe"}
+		],
+		rowId: 'idEntreprise'
+	});
+
+	dtPersonnesContact = $('#dtPersonnesContact').DataTable({
+		destroy: true,
+		bAutoWidth: false,
+		autoWidth: false,
+		//autoWidth : true,
+		//pageLength : 5,
+		//lengthMenu: [ [5, 10, -1], [5, 10, "All"] ],
+		paging: false,
+		scrollY: "300px",
+		scrollCollapse: true,
+		responsive: true,
+		//paging:         false,
+		info: false,
+		language: {
+			"search": "Rechercher : "
+		},
+		//info : false,
+		select: {
+			style: 'single',
+		},
+		data: "",
+		columns: [{
+			"data": "nom"
+		}, {
+			"data": "prenom"
+		}, {
+			"data": "email"
+		}, {
+			"data": "tel"
+		}],
+		rowId: 'idPersonneContact'
+	});
+
+	// add row
+	$('#addRow').click(function () {
+		$('#confirmInitiateContact').hide();
+		$('#btnAddContact').hide();
+		$('#txtInitiatePersonContact').show();
+
+		var rowHtml = $("#newRow").find("tr")[0].outerHTML
+		$('#btnAddPersonContact').show();
+		$('#btnCancelAddPersonContact').show();
+		$('#addRow').hide();
+		dtPersonnesContact.row.add($(rowHtml)).draw();
+		dtPersonnesContact.select.style('api');
+	});
+
+	$('#btnCancelAddPersonContact').on('click', function () {
+		cancelAddPerson();
+	});
+
+	$('#btnAddPersonContact').on('click', function () {
+		var isvalid = $('#formNewPersonneContact').valid();
+		var json = JSON.parse(myApp.form2Json($('#formNewPersonneContact')));
+		//Ajout de l'id entreprise dans JSON
+		json.entreprise = idEntreprise;
+		var dataJson = JSON.stringify(json);
+
+		if (isvalid) {
+
+			config = {
+				'data': {
+					'action': 'creerPersonneContact',
+					'newPersonneContact': dataJson,
+				},
+				'success': function (reponse) {
+
+
+					var row = dtPersonnesContact.row.add(reponse);
+					row.draw();
+					row.select();
+					$(".notificationPDCAjoute").html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>La personne de contact a été ajouté avec succès</div>');
+					cancelAddPerson();
+				}
+			}
+			myApp.myajax(config);
+		}
+	});
+
+	dtEntreprises.on('select', function (e, dt) {
+		$('#confirmInitiateContact').hide();
+		$('#btnsContactEntreprises').show();
+		dtPersonnesContact.rows().deselect();
+		idEntreprise = dt.id();
+
+		config = {
+			'data': {
+				action: 'getEntreprise',
+				idEntreprise: idEntreprise
+			},
+			'success': function (reponse) {
+				removeMarker();
+				codeAddress(reponse);
+				$('#entrepriseNom').text(reponse.denomination);
+				$('#entrepriseTel').text(reponse.tel);
+				$('#entrepriseEmail').text(reponse.email);
+				$('#entrepriseAdresse').text(reponse.numero + " " + reponse.adresse + 
+					" " + reponse.codePostal + " " + reponse.ville);
+				if(reponse.estBlackListe == false){
+					$('#entrepriseBlackliste').html("<span class=\"col-green\">Non blacklisté</span>");
+				}
+				else{
+					$('#entrepriseBlackliste').html("<span class=\"col-red\">blacklisté !</span>");
+				}
+			}
+		}
+		myApp.myajax(config);
+
+		var idx = dt.cell('.selected', 0).index();
+		var data = dt.row(idx.row).data();
+		denominationEntreprise = data.denomination;
+
+		cancelAddPerson();
+		$('#pagePersonnesContact').css('display', 'block');
+		remplirPersonnesContact(dt.id());
+
+
+	});
+
+	dtEntreprises.on('deselect', function (e, dt, type, indexes) {
+		$('#confirmInitiateContact').hide();
+		dtPersonnesContact.rows().deselect();
+		removeMarker();
+		$('#pagePersonnesContact').css('display', 'none');
+		idEntreprise = null;
+		denominationEntreprise = null;
+		cancelAddPerson();
+	});
+
+	dtPersonnesContact.on('select', function (e, dt) {
+		$('#confirmInitiateContact').hide();
+		$('#btnsContactEntreprises').show();
+		if (dt != undefined) {
+			
+			idPersonneContact = dt.id();
+
+			var idx = dt.cell('.selected', 0).index();
+			var data = dt.row(idx.row).data();
+			nomPersonneContact = data.prenom + " " + data.nom;
+		}
+	});
+
+	dtPersonnesContact.on('deselect', function (e, dt, type, indexes) {
+		idPersonneContact = null;
+		nomPersonneContact = null;
+		$('#confirmInitiateContact').hide();
+	});
+
+	//Jquery validation règles & messages
+	$("#formNewPersonneContact").validate({
+		rules: {
+			nom: {
+				required: true,
+				minlength: 1,
+				maxlength: 50
+			},
+			prenom: {
+				required: true,
+				minlength: 1,
+				maxlength: 30,
+			},
+			email: {
+				required: true,
+				minlength: 1,
+				maxlength: 50,
+				mailVerif: true
+			},
+			tel: {
+				required: true,
+				minlength: 1,
+				maxlength: 15,
+				telVerif: true
+			}
+		},
+		messages: {
+			nom: "Veuillez indiquer un nom",
+			prenom: "Veuillez indiquer un prénom",
+			email: {
+				required: "Veuillez indiquer un mail",
+				mailVerif: "Veuillez indiquer un mail valide",
+			},
+			tel: {
+				required: "Veuillez indiquer un téléphone",
+				telVerif: "Veuillez indiquer un téléphone valide",
+			},
+		},
+		highlight: function (input) {
+			$(input).parents('.form-line').addClass('error');
+		},
+		unhighlight: function (input) {
+			$(input).parents('.form-line').removeClass('error');
+		},
+		errorPlacement: function (error, element) {
+			$(element).parents('.form-group').append(error);
+		}
+	});
+
+	FrontEnd.onDisplayPage('pageEntreprises', function () {
+		$('body').removeClass().toggleClass('theme-teal');
+		showNavBar();
+		remplirEntreprises();
+	});
+
+	FrontEnd.onLeavePage('pageEntreprises', function () {
+		$('#pagePersonnesContact').css('display', 'none');
+	});
+});
+
+$('#btnAddContact').on('click', function () {
+	$('#btnsContactEntreprises').hide();
+	let textToShow = '';
+	if (idPersonneContact == null) {
+		textToShow = 'Vous allez initier un contact avec l\'entreprise <span class="font-bold font-italic col-teal">' + denominationEntreprise + '</span>. Il n\'y aura pas de personne de contact';
+	} else {
+		textToShow = 'Vous allez initier un contact avec l\'entreprise <span class="font-bold font-italic col-teal">' + denominationEntreprise + '</span>. La personne de contact sera <span class="font-bold font-italic col-teal">' + nomPersonneContact + '</span>.';
+	}
+	$('#txtInitiateContact').html(textToShow);
+	$('#confirmInitiateContact').show();
+
+});
+
+$('#btnCancelAddContact').on('click', function () {
+	$('#confirmInitiateContact').hide();
+	$('#btnsContactEntreprises').show();
+});
+
+$('#btnAddContactConfirm').on('click', function () {
+	
+	config = {
+		'data': {
+			'action': 'creerContact',
+			'newContact': JSON.stringify({
+				utilisateur: myApp.getWhoAmI().idUtilisateur,
+				entreprise: idEntreprise,
+				personneContact: idPersonneContact
+			})
+		},
+		'success': function (reponse) {
+			//$(".notificationPDCAjoute").html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Le contact a été initié avec succès</div>');
+			$('#confirmInitiateContact').hide();
+			$('#btnsContactEntreprises').show();
+			myApp.getWhoAmI().nbContacts++;
+			$('#notifContact').html('<div class="alert alert-dismissible bg-green text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>Le contact a été initié avec succès.</div>');
+			FrontEnd.displayPage('pageDashboardStudent');
+		}
+	}
+	myApp.myajax(config);
+});
+
+
+function remplirEntreprises() {
+	myApp.myajax({
+		data: {
+			'action': 'visualiserEntreprises',
+		},
+		success: function (data) {
+			dtEntreprises.clear();
+			dtEntreprises.rows.add(data).draw();
+		}
+	});
+};
+
+function remplirPersonnesContact(entreprise) {
+	myApp.myajax({
+		data: {
+			'action': 'visualiserPersonneContact',
+			'idEntreprise': entreprise
+		},
+		success: function (data) {
+			dtPersonnesContact.clear();
+			dtPersonnesContact.rows.add(data).draw();
+		}
+	});
+};
+
+function cancelAddPerson() {
+	$('#btnAddPersonContact').hide();
+	$('#btnCancelAddPersonContact').hide();
+	$('#btnAddContact').show();
+	$('#txtInitiatePersonContact').hide();
+	dtPersonnesContact.row($("#-1")).remove().draw();
+	$('#addRow').show();
+	dtPersonnesContact.select.style('single');
+}
+
+
+//vérification input email jquery validation
+jQuery.validator.addMethod("mailVerif", function (value, element) {
+	return value.match(/^.+@(.+)\..+$/);
+}, 'Veuillez indiquer un mail valide');
+
+//vérification input tel jquery validation
+jQuery.validator.addMethod("telVerif", function (value, element) {
+	return value.match(/^\+32[0-9]{8,9}$/);
+}, 'Le numéro doit commencer par +32 et contenir entre 11 et 12 chiffres');

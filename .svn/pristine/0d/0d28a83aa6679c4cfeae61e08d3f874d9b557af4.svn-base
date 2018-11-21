@@ -1,0 +1,74 @@
+package biz.user;
+
+public interface UserBiz extends UserDto {
+
+  int MAX_CARACTERES_PSEUDO = 30;
+  int MAX_CARACTERES_MDP = 30;
+  int MAX_CARACTERES_NOM = 50;
+  int MAX_CARACTERES_PRENOM = 30;
+  int MAX_CARACTERES_TEL = 15;
+  int MAX_CARACTERES_EMAIL = 100;
+  String REGEX_EMAIL = ".+@.*vinci\\..+";
+  String REGEX_TEL = "[0-9]+|\\+[0-9]+";
+
+
+  /**
+   * Vérifie si un mot de passe (non hashé) correspond à celui (hashé) stocké dans la base de
+   * données.
+   * 
+   * @param mdp un mot de passe non hashé tel qu'introduit par un utilisateur
+   * 
+   * @return true si le mot de passe correspond à celui hashé dans la BD, false sinon
+   */
+  boolean verifierMotDePasse(String mdp);
+
+  /**
+   * verifie que le format de l email est valide
+   * 
+   * @return true si le format email est valide, false sinon
+   */
+  // boolean checkFormatEmail();
+
+  /**
+   * verifie que le format du pseudo est valide
+   * 
+   * @return true si le pseudo est valide, false sinon
+   */
+  // boolean checkFormatPseudo();
+
+  /**
+   * verifie que le format du pseudo est valide
+   * 
+   * @return true si le pseudo est valide, false sinon
+   */
+  // boolean checkFormatNom();
+
+  /**
+   * verifie que le format du prenom est valide
+   * 
+   * @return true si le prenom est valide, false sinon
+   */
+  // boolean checkFormatPrenom();
+
+  /**
+   * verifie que le format du numero de telephone est valide
+   * 
+   * @return true si le numero est valide, false sinon
+   */
+  // boolean checkFormatTel();
+
+  /**
+   * verifie que le format du mot de passe est valide
+   * 
+   * @return true si le mot de passe est valide, false sinon
+   */
+  // boolean checkFormatMdp();
+
+  /**
+   * verifie que le format de la date de naissance est valide
+   * 
+   * @return true si la date de naissance est valide, false sinon
+   */
+  // boolean checkFormatDateNaissance();
+
+}

@@ -1,0 +1,16 @@
+package biz.factory;
+
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+
+public interface BizFactory {
+
+  /**
+   * Fournit un UserDto vide.
+   * 
+   * @return un UserDto vide
+   */
+  UserDto getUserVide();
+
+  PersonneContactDto getPersonneContactVide();
+}

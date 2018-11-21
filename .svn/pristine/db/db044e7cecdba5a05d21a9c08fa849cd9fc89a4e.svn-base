@@ -1,0 +1,5 @@
+	<div id="pageLogin" style="display: none">
+		login<input type="text" id="inputLogin" required><br>
+		mdp<input type="password" id="inputMdp" required><br>
+		<button id="btnLogin">Se connecter</button>
+	</div>

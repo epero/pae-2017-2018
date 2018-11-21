@@ -1,0 +1,124 @@
+package biz.ucc;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import biz.entreprise.EntrepriseBiz;
+import biz.entreprise.EntrepriseDto;
+import dal.dao.EntrepriseDao;
+import dal.services.DalServices;
+import exceptions.BizException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class EntrepriseUccImpl implements EntrepriseUcc {
+
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @Override
+  public List<EntrepriseDto> visualiserEntreprises() {
+
+    List<EntrepriseDto> entrepriseDtos;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseDtos = entrepriseDao.getAllEntreprises();
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseDtos;
+  }
+
+  @Override
+  public HashMap<EntrepriseDto, Integer> visualiserEntreprisesAsProf(String anneeAcademique) {
+
+    HashMap<EntrepriseDto, Integer> entrepriseDtos;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseDtos = entrepriseDao.getAllEntreprisesWithNumberOfStudents(anneeAcademique);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseDtos;
+  }
+
+  @Override
+  public EntrepriseDto getEntreprise(int idEntreprise) {
+
+    EntrepriseDto entrepriseDto;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseDto = entrepriseDao.getEntreprise(idEntreprise);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseDto;
+  }
+
+  @Override
+  public EntrepriseDto blacklistEntreprise(EntrepriseDto entreprise) {
+
+    EntrepriseDto entrepriseARet;
+
+    try {
+      dalServices.startTransaction();
+      entrepriseARet = entrepriseDao.blacklistEntreprise(entreprise);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseARet;
+  }
+
+  @Override
+  public EntrepriseDto insertEntreprise(EntrepriseDto entreprise) {
+    EntrepriseDto entrepriseARet = null;
+    try {
+      dalServices.startTransaction();
+      Util.checkFormatString(entreprise.getDenomination(),
+          EntrepriseBiz.MAX_CARACTERES_DENOMINATION, "Le format de la dénomination est incorrect");
+      Util.checkFormatString(entreprise.getAdresse(), EntrepriseBiz.MAX_CARACTERES_ADRESSE,
+          "Le format de la rue est incorrect");
+      Util.checkFormatString(entreprise.getCodePostal(), EntrepriseBiz.MAX_CARACTERES_CODE_POSTAL,
+          "Le format du code postal est incorrect");
+      Util.checkFormatString(entreprise.getVille(), EntrepriseBiz.MAX_CARACTERES_VILLE,
+          "Le format de la ville est incorrect");
+      if (entrepriseDao.denominationEntrepriseExiste(entreprise.getDenomination())) {
+        throw new BizException("Denomination entreprise existe déjà!");
+      }
+      entreprise.setEstBlackListe(false);
+      entreprise.setNumVersion(0);
+      entrepriseARet = entrepriseDao.insertEntreprise(entreprise);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return entrepriseARet;
+  }
+
+
+}

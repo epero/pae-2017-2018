@@ -1,0 +1,6 @@
+package dal.services;
+
+
+public interface DALServices {
+
+}

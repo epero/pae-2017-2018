@@ -1,0 +1,10 @@
+$(function() {
+
+	FrontEnd.onDisplayPage('pageDashboard', function(){
+		console.log('hey1');
+		$('#whoami').text(whoami.prenom +" " + whoami.nom);
+	});
+	
+	
+
+});

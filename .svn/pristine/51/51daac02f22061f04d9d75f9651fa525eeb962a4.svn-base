@@ -1,0 +1,52 @@
+package biz.ucc;
+
+import biz.user.UserBiz;
+import biz.user.UserDto;
+import dal.dao.UserDao;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class UserUccImpl implements UserUcc {
+
+  @DependanceInjection
+  private UserDao userDao;
+
+  @DependanceInjection
+  private Util util;
+
+  @Override
+  public UserDto seConnecter(String pseudo, String mdp) {
+
+    try {
+      util.checkString(pseudo);
+      util.checkString(mdp);
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
+    /*************
+     * POUR TEST******* System.out.println("1"); UserImpl jean1=new UserImpl(); if
+     * (jean1==null)System.out.println("orjaezihfauizhfaohfiaozuhfezof"); System.out.println(jean1+
+     * " 2");
+     * 
+     * jean1.setPseudo("jean92"); System.out.println("3"+jean1.getPseudo()); jean1.setMdp("mdp");
+     * jean1.setNom("neymar"); jean1.setPrenom("jean"); jean1.setDateNaissance(LocalDate.now());
+     * jean1.setTel("04/78.77.66.55"); jean1.setEmail("jean@gmail.com");
+     * jean1.setDateInscription(LocalDate.now()); jean1.setNbContacts(5);
+     * jean1.setAnneeAcademique("2017-2018"); jean1.setEstAdmin(false); userDao.insertUser(jean1);
+     * 
+     ******************************************/
+    UserBiz userAVerf = (UserBiz) userDao.getUser(pseudo);
+
+
+    if (userAVerf != null && userAVerf.verifierMotDePasse(mdp)) {
+      return userAVerf;
+    }
+    return null;
+  }
+
+  @Override
+  public UserDto sinscrire(UserDto user) {
+    // TODO Auto-generated method stub
+    return userDao.insertUser(user);
+  }
+}

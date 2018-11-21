@@ -1,0 +1,50 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.pdc.PersonneContactBiz;
+import biz.pdc.PersonneContactDto;
+import dal.dao.PersonneContactDao;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class PersonneContactUccImpl implements PersonneContactUcc {
+
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+
+  @Override
+  public List<PersonneContactDto> visualiserPersonnesContact(int idEntreprise) {
+    return personneContactDao.getPersonnesContactByIdEntreprise(idEntreprise);
+  }
+
+  public PersonneContactDto creerPersonneContact(PersonneContactDto personneContact) {
+
+    PersonneContactBiz PCAVerif = (PersonneContactBiz) personneContact;
+    Util.checkFormatString(personneContact.getNom(), PCAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(personneContact.getPrenom(), PCAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prénom est incorrect");
+    Util.checkFormatString(personneContact.getTel(), PCAVerif.MAX_CARACTERES_TEL,
+        "Le format de l'email est incorrect");
+    Util.checkFormatString(personneContact.getEmail(), PCAVerif.MAX_CARACTERES_EMAIL,
+        "Le format de l'email est incorrect");
+    personneContact.setEmail(null);
+
+    return personneContactDao.insertPersonneContact(personneContact);
+  }
+
+  public PersonneContactDto creerPersonneContactAvecEntreprise(PersonneContactDto personneContact) {
+
+    PersonneContactBiz PCAVerif = (PersonneContactBiz) personneContact;
+    Util.checkFormatString(personneContact.getNom(), PCAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(personneContact.getPrenom(), PCAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prénom est incorrect");
+    Util.checkFormatString(personneContact.getTel(), PCAVerif.MAX_CARACTERES_TEL,
+        "Le format de l'email est incorrect");
+    Util.checkFormatString(personneContact.getEmail(), PCAVerif.MAX_CARACTERES_EMAIL,
+        "Le format de l'email est incorrect");
+
+    return personneContactDao.insertPersonneContactAvecEntreprise(personneContact);
+  }
+}

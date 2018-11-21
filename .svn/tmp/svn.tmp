@@ -1,0 +1,15 @@
+#Config
+JWTSecret=
+port = 8080
+
+#DAL properties
+driverClassName = org.postgresql
+url = jdbc:postgresql://studentittools.ipl.be:5432/dbguillaume_wery?user=guillaume_wery
+ndcDB = "guillaume.wery"
+mdpDB = "7777777"
+
+#Dependancy injection
+biz.ucc.UserUCC = biz.ucc.UserUCCImpl
+DALServices
+BizFactory
+dal.dao.UserDAO = dal.dao.UserDAOImpl

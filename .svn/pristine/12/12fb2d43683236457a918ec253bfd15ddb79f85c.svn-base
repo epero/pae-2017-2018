@@ -1,0 +1,80 @@
+package dal.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.DaoUtil;
+
+public class ContactDaoImpl implements ContactDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendServices;
+
+  @DependanceInjection
+  private BizFactory bizfactory;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    List<ContactDto> listeContacts = new ArrayList<>();
+    String query =
+        "SELECT id_contact,utilisateur,entreprise,personne_contact,etat,annee_academique "
+            + "FROM stagify.contacts WHERE utilisateur=?";
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, utilisateur.getIdUtilisateur());
+    try (ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        // recuperation contact vide
+        ContactDto contact = bizfactory.getContactVide();
+        // remplissage du contact vide
+        contact.setIdContact(rs.getInt(1));
+        contact.setUtilisateur(rs.getInt(2));
+        // contact.setUtilisateurDto(utilisateur);
+        contact.setEntreprise(rs.getInt(3));
+        // TODO setEntrepriseDto
+        contact.setPersonneContact(rs.getInt(4)); // personne de contact peut être null !!
+        // TODO setPersonneContactDto
+        contact.setEtat(rs.getString(5));
+        contact.setAnneeAcademique(rs.getString(6));
+        // ajout du contact dans la liste
+        listeContacts.add(contact);
+      }
+    } catch (SQLException e) {
+      System.out.println("Erreur lors du listing des contacts de l'utilisateur");
+      throw new FatalException("Erreur accès DB");
+    }
+
+    return listeContacts;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateur(ContactDto utilisateur) {
+    String query =
+        "INSERT INTO stagify.contacts(utilisateur, entreprise, personne_contact, etat, annee_academique"
+            + "VALUES(?, ?, ?, ?, ?)";
+    PreparedStatement ps = dalBackendServices.getPreparedStatement(query);
+    DaoUtil.setPreparedStatement(ps, utilisateur.getUtilisateur(), utilisateur.getEntreprise(),
+        utilisateur.getPersonneContact(), utilisateur.getEtat(), utilisateur.getAnneeAcademique());
+
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1) {
+        return utilisateur;
+      } else {
+        return null;
+      }
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      System.out.println("Erreur lors de l'insertion d'un contact utilisateur");
+      throw new FatalException("Erreur lors de l'accès à la DB");
+    }
+  }
+
+}

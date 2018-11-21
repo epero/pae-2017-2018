@@ -1,0 +1,21 @@
+package biz.factory;
+
+import biz.user.UserDto;
+import biz.user.UserImpl;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+class BizFactoryImpl implements BizFactory {
+
+  @DependanceInjection
+  private AppContext appContext;
+
+  @Override
+  public UserDto getUserVide() {
+    UserDto user = new UserImpl();
+    appContext.recurDepInj(user);
+    return user;
+  }
+
+}
+

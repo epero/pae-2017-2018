@@ -1,0 +1,64 @@
+package dal.services;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class DALServicesImpl {
+
+  private Connection conn = null;
+
+  public DALServicesImpl(String fichier) { // Argument à modifié lors de l'injection dépendance
+
+    // Chargement du fichier properties
+    Properties props = new Properties();
+    FileInputStream file = null;
+
+    try {
+      file = new FileInputStream("conf/" + fichier);
+    } catch (FileNotFoundException ex) {
+      try {
+        file = new FileInputStream("conf/dev.properties");
+      } catch (FileNotFoundException ex2) {
+        ex2.printStackTrace();
+      }
+    }
+
+    try {
+      props.load(file);
+      file.close();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    // Vérification du driver postgreSQL
+    try {
+      Class.forName(props.getProperty("driverClassName"));
+    } catch (ClassNotFoundException ex) {
+      System.out.println("Driver Postgresql manquant !");
+      System.exit(1);
+    }
+    System.out.println("Driver PostgreSQL chargé");
+
+    // Connexion à la base de données
+    try {
+      conn = DriverManager.getConnection(props.getProperty("url"), props.getProperty("ndcDB"),
+          props.getProperty("mdpDB"));
+    } catch (SQLException ex) {
+      System.out.println("Erreur de connexion à la base de données");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  public PreparedStatement getPrepareStatement(String query) throws SQLException {
+
+    PreparedStatement ps = conn.prepareStatement(query);
+    return ps;
+  }
+}

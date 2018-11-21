@@ -1,0 +1,152 @@
+package dal.dao;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class MockUserDaoImpl implements UserDao {
+
+  // private boolean getUser;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  /*
+   * public MockUserDaoImpl(boolean getUser) { this.getUser = getUser; }
+   */
+
+  @Override
+  public UserDto getUser(String pseudo) {
+    if (pseudo == "@@@@@") {
+      throw new FatalException();
+    }
+    if (!pseudo.equals("blehmann")) {
+      return null;
+    }
+    String motDePasse = "azerty";
+    UserDto user = factory.getUserVide();
+    user.setPseudo(pseudo);
+    user.setNumVersion(0);
+    user.setIdUtilisateur(1);
+    user.setMdp(BCrypt.hashpw(motDePasse, BCrypt.gensalt()));
+    return user;
+
+  }
+
+  @Override
+  public UserDto insertUser(UserDto user) {
+    return user;
+  }
+
+  @Override
+  public boolean pseudoUserExiste(String pseudo) {
+    return pseudo.equals("pierre");
+  }
+
+  @Override
+  public boolean emailUserExiste(String email) {
+    return email.equals("pierre@vinci.be");
+  }
+
+  @Override
+  public UserDto getUser(int idUtilisateur) {
+    if (idUtilisateur == -1) {
+      throw new FatalException();
+    }
+    if (idUtilisateur == 99999) {
+      return null;
+    }
+    if (idUtilisateur == 100) {
+      UserDto userDto = factory.getUserVide();
+      userDto.setIdUtilisateur(100);
+      userDto.setNumVersion(100);
+      userDto.setAnneeAcademique(Util.localDateToYear(LocalDate.now()));
+      userDto.setMdp("$2a$10$AvfajQ3KJrIwtaRL893v6eVmNKqCTjpg1wKU8DiwsLnN5wUKW.Iz6");
+      return userDto;
+    }
+    if (idUtilisateur == 200) {
+      UserDto userDto = factory.getUserVide();
+      userDto.setIdUtilisateur(200);
+      userDto.setEstAdmin(true);
+      userDto.setMdp("$2a$10$AvfajQ3KJrIwtaRL893v6eVmNKqCTjpg1wKU8DiwsLnN5wUKW.Iz6");
+      return userDto;
+    }
+
+    if (idUtilisateur == 300) {
+      UserDto userDto = factory.getUserVide();
+      userDto.setIdUtilisateur(200);
+      userDto.setAnneeAcademique(Util.localDateToYear(LocalDate.now().minusYears(10)));
+      userDto.setMdp("$2a$10$AvfajQ3KJrIwtaRL893v6eVmNKqCTjpg1wKU8DiwsLnN5wUKW.Iz6");
+      return userDto;
+    }
+    UserDto userDto = factory.getUserVide();
+    userDto.setIdUtilisateur(idUtilisateur);
+    userDto.setNumVersion(idUtilisateur);
+    userDto.setAnneeAcademique(Util.localDateToYear(LocalDate.now()));
+    return userDto;
+  }
+
+  @Override
+  public UserDto updateUser(UserDto user) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+
+  @Override
+  public UserDto updateNbrContEtatPlusAvance(UserDto user) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+  @Override
+  public HashMap<String, Integer> getStudentsStats(String anneeAcademique) {
+    if (anneeAcademique == null) {
+      throw new FatalException();
+    }
+
+    return new HashMap<>();
+  }
+
+
+
+  @Override
+  public List<UserDto> getAllUsers(String anneeAcademique) {
+    List<UserDto> users = new ArrayList<>();
+    return users;
+  }
+
+  @Override
+  public UserDto updateMdp(UserDto userDto) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public UserDto updateEtatPlusAvance(UserDto user) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public HashMap<String, Integer> getStudentStats(int idUser) {
+    if (idUser == -2) {
+      throw new FatalException();
+    }
+    return new HashMap<>();
+  }
+
+  /*
+   * public boolean verify(boolean getUser) { return this.getUser == getUser; }
+   */
+
+}

@@ -1,0 +1,49 @@
+package dal.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+
+public class MockContactDaoImpl implements ContactDao {
+
+  @DependanceInjection
+  private BizFactory factory;
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    // TODO Auto-generated method stub
+    List<ContactDto> liste = new ArrayList<>();
+    if (utilisateur.getIdUtilisateur() == 17) {
+      throw new CeciNestPasUneException("Ceci n'est pas une exception");
+    }
+    if (utilisateur.getIdUtilisateur() % 2 == 0) {
+      ContactDto contactVide = factory.getContactVide();
+      liste.add(contactVide);
+    }
+    return liste;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateurAvecPersonneContact(ContactDto utilisateur) {
+    return utilisateur;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateurSansPersonneContact(ContactDto utilisateur) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean contactEntrepriseExiste(int idUtilisateur, int idEntreprise) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+}

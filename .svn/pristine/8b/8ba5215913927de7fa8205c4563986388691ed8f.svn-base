@@ -1,0 +1,255 @@
+/* Alignement boutons */
+.btn-center{
+	padding-top:10px;
+	margin-left: 40%;
+}
+
+/* Navbar */
+.text-navbar{
+    vertical-align: 5px;
+}
+
+.icon-dropdown{
+    padding-top: 2px;
+}
+
+#whoami {
+    vertical-align: 6px;
+}
+
+section.content {
+    margin: 100px 15px 0 10px;
+}
+
+body.signup-page{
+    height: 500px;
+}
+
+a.no-cursor{
+    cursor: default;
+}
+
+.dropdown-modif-perso{
+    top: 90px !important;
+    right: -65px !important;
+}
+
+.nav-element{
+    margin-right: 25px;
+}
+
+/* Datatables */
+
+.table-responsive{
+    overflow-x: hidden;
+}
+
+/* CSS page login */
+.login-page {
+    background-color : #607D8B !important;
+}
+
+/* CSS page sign-up */
+.signup-page {
+	background-color : #607D8B !important;
+}
+
+#pageSignup {
+    margin-top: -12%;
+}
+
+.input-inscription-prenom {
+    margin-top: 35px;
+}
+
+.input-inscription-email {
+    margin-bottom : 40px;
+}
+
+/* CSS page dashboard */
+/*.datatables-contacts-dashboard{
+    margin-top: 100px;
+}*/
+
+#addRowDash {
+    margin-bottom: 10px;
+}
+
+#initContact {
+	margin-left:40%;
+}
+
+#divBtnSauverEtat {
+    float: right;
+    width: 100px;
+    padding: 10px;  
+}
+
+.cellspacing-none {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* CSS page entreprises */
+.datatables-entreprises {
+    margin-top : 100px;
+}
+
+.titre{
+    padding-bottom: 10px;
+}
+
+.titre-entreprise {
+    margin-bottom: 25px !important;
+}
+
+.info-entreprise{
+    display: inline-block;
+    margin-right: 25px;
+}
+
+.icone-info-entreprise {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+table { table-layout: fixed; }
+td, th{ 
+	word-wrap:break-word;
+}
+
+#divBtnCreerEntreprise{
+	padding-top: 20px;
+}
+
+#btnCreerEntreprise{
+	text-align: center;
+}
+
+#btnBlacklistEntreprise {
+    margin-bottom: 10px;
+    margin-right: 20px;
+}
+
+#btnsContactEntreprises {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#confirmInitiateContact {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#btnAddContact {
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+#addRow {
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+#divBtnCreerEntreprise {
+    margin-top : -20px;
+    margin-bottom: 20px; 
+    text-align: center;
+}
+
+#divSelectAnneeAcademique {
+    text-align: center;
+}
+
+.label-ville-cne {
+    width: 100px;
+    margin-left: -7px;
+}
+
+.form-line-denomination-cne {
+    margin-bottom: 15px;
+}
+
+#btn-cne-cancel {
+    margin-right : 10px;
+}
+
+/* Page données personelles */
+.input-donnees-perso-nom{
+    margin-top: 20px;
+}
+
+#btn-modif-mdp {
+    bottom: 15px;
+}
+
+#form-modif-donnees-perso label {
+    margin-right : 10px;
+}
+
+.btns-form-modif-donnees-perso{
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+#btn-donnees-perso-cancel{
+    margin-left: 14%;
+    margin-right: 10px;
+}
+
+.btns-form-mdp-perso{
+    display: flex;
+    justify-content: center;
+}
+
+#btn-mdp-submit{
+    margin-left: 20px;
+}
+
+.actif {
+    border-bottom: 2px solid white;
+}
+
+/* Dialog stage en ordre */
+
+.congrats {
+	position: absolute;
+	top: 140px;
+	width: 550px;
+	height: 100px;
+	padding: 20px 10px;
+	text-align: center;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+}
+
+h1 .congratss{
+	transform-origin: 50% 50%;
+	font-size: 50px;
+	cursor: pointer;
+	z-index: 2;
+	position: absolute;
+	top: 0;
+	text-align: center;
+	width: 100%;
+}
+
+.blob {
+	height: 50px;
+	width: 50px;
+	color: #ffcc00;
+	position: absolute;
+	top: 45%;
+	left: 45%;
+	z-index: 1;
+	font-size: 30px;
+	display: none;	
+}

@@ -1,0 +1,63 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.pdc.PersonneContactBiz;
+import biz.pdc.PersonneContactDto;
+import dal.dao.PersonneContactDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class PersonneContactUccImpl implements PersonneContactUcc {
+
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+
+  @Override
+  public List<PersonneContactDto> visualiserPersonnesContact(int idEntreprise) {
+    List<PersonneContactDto> personneContactDtos;
+
+    try {
+      dalServices.startTransaction();
+      personneContactDtos = personneContactDao.getPersonnesContactByIdEntreprise(idEntreprise);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+    return personneContactDtos;
+  }
+
+  public PersonneContactDto creerPersonneContact(PersonneContactDto personneContact) {
+
+    PersonneContactBiz PCAVerif = (PersonneContactBiz) personneContact;
+    Util.checkFormatString(personneContact.getNom(), PCAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(personneContact.getPrenom(), PCAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prénom est incorrect");
+    Util.checkFormatString(personneContact.getTel(), PCAVerif.MAX_CARACTERES_TEL,
+        "Le format de l'email est incorrect");
+    Util.checkFormatString(personneContact.getEmail(), PCAVerif.MAX_CARACTERES_EMAIL,
+        "Le format de l'email est incorrect");
+    Util.checkPositiveOrZero(personneContact.getEntreprise());
+
+    PersonneContactDto personneContactARenv;
+    try {
+      dalServices.startTransaction();
+      personneContactARenv = personneContactDao.insertPersonneContact(personneContact);
+    } catch (Exception e) {
+      dalServices.rollback();
+      throw e;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+    return personneContactARenv;
+  }
+}

@@ -1,0 +1,61 @@
+package ihm.servlet;
+
+import java.util.logging.Logger;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
+import exceptions.FatalException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+import util.MonLogger;
+import util.Util;
+
+class Main {
+  @DependanceInjection
+  private AppContext appContext;
+  @DependanceInjection
+  private DispatcherServlet dispatcherServlet;
+  @DependanceInjection
+  private MonLogger monLogger;
+
+  public static void main(String[] args) {
+
+    new MonLogger();
+
+    String properties = null;
+
+    if (args.length > 0) {
+      properties = args[0];
+    }
+    AppContext appContext = new AppContext();
+    appContext.loadProps(properties);
+    Main main = new Main();
+    appContext.recurDepInj(main);
+    main.startServer();
+  }
+
+
+  private void startServer() {
+    WebAppContext context = new WebAppContext();
+    context.setContextPath("/");
+
+    // context.addServlet(new ServletHolder(new DefaultServlet()), "/");
+    context.addServlet(new ServletHolder(dispatcherServlet), "/");
+    // context.setWelcomeFiles(new String[] {"index.html"});
+    context.setResourceBase("www");
+    // context.setInitParameter("cacheControl", "no-store, no-cache, must-revalidate");
+
+    Server server = new Server(Integer.parseInt(appContext.getValueProp("port")));
+    server.setHandler(context);
+
+    try {
+      server.start();
+      monLogger.getMonLog().info("Serveur démarré");
+      // Logger.getLogger("stagifyLogger").info("Serveur démarré");
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger")
+          .severe("Impossible de démarrer le serveur\n\t" + Util.stackTraceToString(ex));
+      throw new FatalException();
+    }
+  }
+}

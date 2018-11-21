@@ -1,0 +1,42 @@
+package biz.pdc;
+
+import biz.entreprise.EntrepriseDto;
+
+public interface PersonneContactDto {
+
+  public void fillPersonneContact(int idPersonneContact, String nom, String prenom, String tel,
+      String email, int entreprise, EntrepriseDto entrepriseDto, int numVersion);
+
+  public int getIdPersonneContact();
+
+  public String getNom();
+
+  public String getPrenom();
+
+  public String getTel();
+
+  public String getEmail();
+
+  public int getEntreprise();
+
+  public EntrepriseDto getEntrepriseDto();
+
+  public int getNumVersion();
+
+  public void setIdPersonneContact(int idPersonneContact);
+
+  public void setNom(String nom);
+
+  public void setPrenom(String prenom);
+
+  public void setTel(String tel);
+
+  public void setEmail(String email);
+
+  public void setEntreprise(int entreprise);
+
+  public void setEntrepriseDto(EntrepriseDto entrepriseDto);
+
+  public void setNumVersion(int numVersion);
+
+}

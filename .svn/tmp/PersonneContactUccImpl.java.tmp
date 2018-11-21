@@ -1,0 +1,74 @@
+package biz.ucc;
+
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+import biz.pdc.PersonneContactBiz;
+import biz.pdc.PersonneContactDto;
+import dal.dao.EntrepriseDao;
+import dal.dao.PersonneContactDao;
+import dal.services.DalServices;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class PersonneContactUccImpl implements PersonneContactUcc {
+
+  @DependanceInjection
+  private PersonneContactDao personneContactDao;
+
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+
+
+  @Override
+  public List<PersonneContactDto> visualiserPersonnesContact(int idEntreprise) {
+    List<PersonneContactDto> personnesContactDto;
+
+    try {
+      dalServices.startTransaction();
+      EntrepriseDto entrepriseAVerifier = entrepriseDao.getEntreprise(idEntreprise);
+      personnesContactDto = personneContactDao
+          .getPersonnesContactByIdEntreprise(entrepriseAVerifier.getIdEntreprise());
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+    return personnesContactDto;
+  }
+
+  public PersonneContactDto creerPersonneContact(PersonneContactDto personneContact) {
+    Util.checkObject(personneContact);
+    PersonneContactBiz personneContactAVerif = (PersonneContactBiz) personneContact;
+    Util.checkFormatString(personneContact.getNom(), personneContactAVerif.MAX_CARACTERES_NOM,
+        "Le format du nom est incorrect");
+    Util.checkFormatString(personneContact.getPrenom(), personneContactAVerif.MAX_CARACTERES_PRENOM,
+        "Le format du prénom est incorrect");
+    Util.checkFormatString(personneContact.getTel(), personneContactAVerif.MAX_CARACTERES_TEL,
+        "Le format du tel est incorrect");
+    Util.checkFormatString(personneContact.getEmail(), personneContactAVerif.MAX_CARACTERES_EMAIL,
+        "Le format de l'email est incorrect");
+
+
+    PersonneContactDto personneContactARenv;
+    try {
+      dalServices.startTransaction();
+<<<<<<< .mine
+=======
+      // System.out.println("hey");
+>>>>>>> .r281
+      personneContactARenv = personneContactDao.insertPersonneContact(personneContact);
+    } catch (Exception ex) {
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+
+    return personneContactARenv;
+  }
+}

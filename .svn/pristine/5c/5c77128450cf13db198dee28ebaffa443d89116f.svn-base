@@ -1,0 +1,47 @@
+package biz.ucc;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
+import biz.factory.BizFactory;
+import exceptions.FatalException;
+import util.AppContext;
+import util.AppContext.DependanceInjection;
+
+public class EntrepriseUccImplTest {
+
+  @DependanceInjection
+  private EntrepriseUcc entrepriseUcc;
+  @DependanceInjection
+  private BizFactory factory;
+
+  @Before
+  public void setUp() throws Exception {
+    AppContext appContext = new AppContext();
+    appContext.loadProps("test.properties");
+    appContext.recurDepInj(this);
+  }
+
+  @Test
+  public void testVisualiserEntreprises() {
+    assertNotNull(entrepriseUcc.visualiserEntreprises());
+  }
+
+  @Test
+  public void testGetEntreprise1() {
+    assertNotNull(entrepriseUcc.getEntreprise(1));
+  }
+
+  @Test
+  public void testGetEntreprise2() {
+    assertNull(entrepriseUcc.getEntreprise(9999999));
+  }
+
+  @Test(expected = FatalException.class)
+  public void testGetEntreprise3() {
+    entrepriseUcc.getEntreprise(-1);
+  }
+
+
+}

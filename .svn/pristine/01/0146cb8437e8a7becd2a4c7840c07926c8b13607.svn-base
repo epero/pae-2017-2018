@@ -1,0 +1,160 @@
+package dal.dao;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import dal.services.DalBackendServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+
+class UserDaoImpl implements UserDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendService;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+  @DependanceInjection
+  private Util util;
+
+
+  @Override
+  public UserDto getUser(String pseudo) {
+    util.checkString(pseudo);
+    final String query = "SELECT * FROM stagify.utilisateurs WHERE pseudo = ?";
+    // PreparedStatement plutot dans les variables globales de la classe?
+    // -> Bonne pratique avec PreparedStatement : les créer une seule fois (au démarrage ou au
+    // premier usage)
+    PreparedStatement preparedStatement;
+    UserDto user;
+
+    try {
+      preparedStatement = dalBackendService.getPreparedStatement(query);
+      if (preparedStatement == null) {
+        return null;
+      }
+      setPreparedStatement(preparedStatement, pseudo);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        user = (UserDto) factory.getUserVide();
+        if (setUserResultSet(user, resultSet)) {
+          return user;
+        } else {
+          return null;
+        }
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+        throw new FatalException(
+            "Erreur lors de la récupération de l'utilisateur dans la base de données.");
+      }
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      throw new FatalException(
+          "Erreur lors de la récupération de l'utilisateur dans la base de données.");
+    }
+    // return null;
+  }
+
+  /**
+   * Méthode qui set un nombre arbitraire d'objets sur un PreparedStatement. La méthode itère sur
+   * chaque objet passé en paramètre et appele la méthode setObject() sur le PreparedStatement
+   * 
+   * @param ps, un PreparedStatement déjà créé
+   * @param objects, un nombre arbitraire d'objets de type Object contenant l'input de l'utilisateur
+   */
+  private void setPreparedStatement(PreparedStatement ps, Object... objects) {
+    try {
+      // le premier indice est à 1
+      for (int i = 1; i <= objects.length; i++) {
+        ps.setObject(i, objects[i - 1]);
+      }
+    } catch (SQLException ex) {
+      throw new FatalException();
+    }
+  }
+
+  /**
+   * Méthode (à rendre générique) qui : * vérifie s'il existe au moins un tuple pour un ResultSet et
+   * renvoie false le cas contraire; * parcourt chaque tuple de ce ResultSet grace à un objet
+   * metadata. Pour chaque tuple, la méthode : * récupère et renomme le nom de la colonne (un champ
+   * dans la BD) * recupère par introspection les méthodes de l'objet user passé en paramètre. Pour
+   * chaque méthode propres à l'user, la méthode : * vérifie qu'il s'agit d'un setter et qu'il
+   * correspond au nom de la colonne * set sur l'objet user la valeur de la colonne du tuple en
+   * cours.
+   *
+   * @param user, un UserDto pour lequel on invoque ses setters
+   * @param rs, un ResultSet, résultat d'un preparedStatement.executeQuery()
+   * @return true s'il existe au moins un tuple pour rs, false sinon
+   * @throws IllegalAccessException
+   * @throws IllegalArgumentException
+   * @throws InvocationTargetException
+   * @throws SQLException
+   */
+  private boolean setUserResultSet(UserDto user, ResultSet rs) throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, SQLException {
+    // TODO rendre la méthode générique : remplacer UserDto user par Class class
+    ResultSetMetaData rsmd = rs.getMetaData(); // objet metadata
+    if (rs.next()) {
+      do {
+        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+          // recupère et renomme le nom de la colonne (champ dans la BD)
+          String nomColonne = rsmd.getColumnName(i).replace("_", "").toLowerCase();
+          Class userClass = user.getClass();
+          // récupère par introspection les méthodes de l'objet user
+          for (Method method : userClass.getDeclaredMethods()) {
+            // vérifie qu'il s'agit d'un setter et qu'il correspond au nom de la colonne
+            if (method.getName().startsWith("set")
+                && nomColonne.matches(method.getName().toLowerCase().substring(3))) {
+              // set sur l'objet user la valeur de la colonne du tuple en cours
+              if (rs.getObject(i).getClass().getName().equals("java.sql.Timestamp")) {
+                Timestamp t = (Timestamp) rs.getObject(i);
+                method.invoke(user, t.toLocalDateTime().toLocalDate());
+              } else {
+                method.invoke(user, rs.getObject(i));
+              }
+            }
+          }
+        }
+      } while (rs.next());
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public UserDto insertUser(UserDto user) {
+    String query =
+        "INSERT INTO stagify.utilisateurs(pseudo, mdp, nom, prenom, date_naissance, tel, email, date_inscription, annee_academique, est_admin, nb_contacts)"
+            + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    PreparedStatement ps = dalBackendService.getPreparedStatement(query);// ? PS
+    Timestamp dateNaissance = Timestamp.valueOf(user.getDateNaissance().atStartOfDay());
+    Timestamp dateInscription = Timestamp.valueOf(user.getDateInscription().atStartOfDay());
+    System.out.println(dateInscription);
+    setPreparedStatement(ps, user.getPseudo(), user.getMdp(), user.getNom(), user.getPrenom(),
+        dateNaissance, user.getTel(), user.getEmail(), dateInscription, user.getAnneeAcademique(),
+        user.estAdmin(), user.getNbContacts());
+    try {
+      int codeRetour = ps.executeUpdate();
+      if (codeRetour == 1)
+        return user;
+      else
+        return null;
+    } catch (SQLException e) {
+      System.out.println("Erreur lors de l insertion !");
+      e.printStackTrace();
+      throw new FatalException();
+    }
+  }
+
+
+}

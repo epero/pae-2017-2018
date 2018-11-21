@@ -1,0 +1,72 @@
+package dal.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import biz.contact.ContactDto;
+import biz.factory.BizFactory;
+import biz.user.UserDto;
+import dal.services.DalServices;
+import exceptions.FatalException;
+import util.AppContext.DependanceInjection;
+
+public class MockContactDaoImpl implements ContactDao {
+
+  @DependanceInjection
+  private BizFactory factory;
+  @DependanceInjection
+  private DalServices dalServices;
+
+  @Override
+  public List<ContactDto> listerContactUtilisateur(UserDto utilisateur) {
+    List<ContactDto> liste = new ArrayList<>();
+    if (utilisateur.getIdUtilisateur() == 17) {
+      // throw new CeciNestPasUneException("Ceci n'est pas une exception");
+      throw new FatalException();
+    }
+    if (utilisateur.getIdUtilisateur() % 2 == 0) {
+      ContactDto contactVide = factory.getContactVide();
+      liste.add(contactVide);
+    }
+    return liste;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateurAvecPersonneContact(ContactDto utilisateur) {
+    return utilisateur;
+  }
+
+  @Override
+  public ContactDto insertContactUtilisateurSansPersonneContact(ContactDto utilisateur) {
+    return utilisateur;
+  }
+
+  @Override
+  public boolean contactEntrepriseExiste(int idUtilisateur, int idEntreprise) {
+    if (idUtilisateur == 1 && idEntreprise == 1) {
+      return true;
+    } else if (idUtilisateur == Integer.MAX_VALUE) {
+      throw new FatalException();
+    }
+    return false;
+  }
+
+  @Override
+  public ContactDto getContact(int idContact) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean updateEtatContact(int idContact, String etat, int numVersion) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean existeContactAvecEtat(int idUser, String etat) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+
+}

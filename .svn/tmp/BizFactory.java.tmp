@@ -1,0 +1,28 @@
+package biz.factory;
+
+<<<<<<< .mine
+import biz.entreprise.EntrepriseDto;
+=======
+import biz.contact.ContactDto;
+>>>>>>> .r195
+import biz.pdc.PersonneContactDto;
+import biz.user.UserDto;
+
+public interface BizFactory {
+
+  /**
+   * Fournit un UserDto vide.
+   * 
+   * @return un UserDto vide
+   */
+  UserDto getUserVide();
+
+  PersonneContactDto getPersonneContactVide();
+<<<<<<< .mine
+
+  EntrepriseDto getEntrepriseVide();
+=======
+
+  ContactDto getContactVide();
+>>>>>>> .r195
+}

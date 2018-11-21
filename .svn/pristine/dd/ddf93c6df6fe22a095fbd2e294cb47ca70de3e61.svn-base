@@ -1,0 +1,67 @@
+package util;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Properties;
+
+public class DependencyInj {
+	
+	private static HashMap<Class<?>, Object> instances = new HashMap<Class<?>, Object>();
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface dependanceInjection {
+	}
+
+	public static void depInj(Object objet, String fichier) throws FileNotFoundException, IllegalArgumentException, IllegalAccessException, ClassNotFoundException{
+		for (Field field : 	objet.getClass().getDeclaredFields()) {
+			if(field.isAnnotationPresent(dependanceInjection.class)){
+				Properties props = new Properties();
+				FileInputStream file;
+				try {
+					file = new FileInputStream("src/config/"+fichier);
+					props.load(file);
+					file.close();
+				}catch (FileNotFoundException e) {
+					System.out.println("run du fichier par defaut");
+					file = new FileInputStream("src/config/dev.properties" );
+				
+				} catch (Throwable e) {
+					throw new RuntimeException(e);
+				}
+				Object ob;
+				Class<?> cl;
+				String implName = props.getProperty("tv.TvFactory");
+				cl = Class.forName(implName);
+				if(!instances.containsKey(cl)) {
+					try {
+						Constructor c = cl.getDeclaredConstructor();
+						c.setAccessible(true);
+						ob = c.newInstance();
+						instances.put(cl, ob);
+					} catch (Throwable e) {
+						throw new RuntimeException(e);
+					}
+				}
+				//solution sans singleton
+				/*try {
+					cl = Class.forName(implName);
+					Constructor c = cl.getDeclaredConstructor();
+					c.setAccessible(true);
+					ob = c.newInstance();
+					instance = ob;
+					
+				} catch (Throwable e) {
+					throw new RuntimeException(e);
+				}*/
+				field.setAccessible(true);
+				field.set(objet, instances.get(cl));
+			}
+		}
+	}
+}
+

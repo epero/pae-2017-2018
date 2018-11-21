@@ -1,0 +1,14 @@
+package exceptions;
+
+public class FatalException extends RuntimeException {
+
+  public FatalException() {
+    // TODO Auto-generated constructor stub
+  }
+
+  public FatalException(String message) {
+    super(message);
+    // TODO Auto-generated constructor stub
+  }
+
+}

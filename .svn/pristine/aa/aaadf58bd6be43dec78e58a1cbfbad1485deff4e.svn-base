@@ -1,0 +1,391 @@
+			
+
+<div id="pageDashboardStudent" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="display: none;">
+	<!--  <section class="content">-->
+		<div class="container-fluid">
+			<div class="block-header" id="divSelectEtud" style="display: none;">
+				<label for="selectEtud">
+ 				 Selectionnez un étudiant</label>
+				<select id="selectEtud" class="form-control input-lg select2-single" dir="rtl" tabindex="-1" aria-hidden="true" name="state">
+				</select>
+			</div>
+			<div class="row clearfix datatables-contacts-dashboard">
+				<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+					<div class="card">
+						<div class="header">
+							<h2>
+								TABLEAU DE BORD
+							</h2>
+						</div>
+						<!-- div de classes 'body' et 'clearfix' -->
+						<div class="body"> <!-- style="display: none" -->
+							<div class="table-responsive">
+								<div class="notification"></div>
+								<div id="notifContact"></div>
+								<h4 id="nbContacts">
+									Contacts :  
+								</h4>
+								<button id="initContact" class="btn btn-lg bg-blue-grey waves-effect">Initier un nouveau contact</button>
+								<br><br>
+								<table id="dtContacts"
+									class="table table-bordered table-striped table-hover dataTable">
+									<thead>
+										<tr>
+											<th>Entreprise</th>
+											<th>Etat</th>
+											<th>Personne de contact</th>
+											<th>Email</th>
+											<th>Tel</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+								<div id="divBtnSauverEtat"><button id="btnSauverEtat" class="btn btn-lg bg-cyan waves-effect notification-button" data-placement-from="bottom" data-placement-align="right" data-animate-enter="animated zoomInRight" data-animate-exit="animated zoomOutRight" data-color-name="bg-red">Sauver</button></div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+					<div class="card" id ="cardStageEnOrdre" style="display: none;">
+						<div class="header">
+							<h2 class="col-teal">VOTRE STAGE EST EN ORDRE !</h2>
+						</div>
+						<div class="body">
+							<form id="form-stage-en-ordre" onsubmit="event.preventDefault();" class="form-horizontal">
+								<h4 id="nomEntreprise">Informations de l'entreprise : </h4><br />
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="adresse">Rue :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="adresse" id="adresse" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="numero">Numéro :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="numero" id="numero" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="boite">Boite :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="boite" id="boite" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="codePostal">Code postal :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="codePostal" id="codePostal" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="ville">Ville :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="ville" id="ville" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<h4>Informations du responsable de stage</h4><br />
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="responsablePrenom">Prénom :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="responsablePrenom" id="responsablePrenom" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="responsableNom">Nom :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="responsableNom" id="responsableNom" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="responsableEmail">Email :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="responsableEmail" id="responsableEmail" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="responsableTel">Téléphone :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="responsableTel" id="responsableTel" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+								<br />
+								<div class="row clearfix">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 form-control-label">
+										<label for="dateSignature">Date de signature de la convention :</label>
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+										<div class="form-group">
+											<div class="form-line disabled">
+												<input type="text" name="dateSignature" id="dateSignature" class="form-control" disabled>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+                    <div class="card" style="display: none;" id="cardPieChart">
+                        <div class="header">
+                            <h2>
+                                Etat des contacts
+                            </h2>
+                        </div>
+                        <div class="body">
+    						<div id="piechartStudent" style="width: 100%; height: 400px;"></div>
+                        </div>
+                    </div>
+                    	<div class="card" style="display: none;" id="cardDtPersCont">
+                    	    <div class="header">
+	                    		<h2>
+	                                Sélectionnez le Responsable
+	                            </h2>
+                    		</div>
+                    		<div class="body">
+	                    		<form id="formAdresseStage" onsubmit="event.preventDefault();" method="post">
+	                    		<h2 class="card-inside-title">Précisez l'adresse du stage</h2>
+								<div class="row clearfix">
+									<div class="col-sm-6">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="adresse" class="form-control" required aria-required="true"> 
+												<label class="form-label">Adresse</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="numero" class="form-control" required aria-required="true"> 
+												<label class="form-label">Numéro</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="boite" class="form-control">
+												<label class="form-label">Boite</label>
+											</div>
+										</div>
+									</div>
+								</div>
+	
+								<div class="row clearfix">
+									<div class="col-sm-6">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="codePostal" class="form-control" required aria-required="true">
+												<label class="form-label">Code Postal</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="ville" class="form-control" required aria-required="true">
+												<label	class="form-label">Ville</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div class="row clearfix">
+									<div class="col-sm-12">
+										<div class="form-group form-float">
+											<div class="form-line">
+												<input type="text" name="dateSignature" class="form-control" required aria-required="true">
+												<label	class="form-label">Date de signature</label>
+											</div>
+											<div class="help-info">Format JJ/MM/AAAA</div>
+										</div>
+									</div>
+								</div>
+								</form>
+								<h2 class="card-inside-title">Précisez le responsable du stage</h2>
+				                	<div class="table-responsive">
+										<div class="notification"></div>
+										<div id="btnsPersContDash">
+											<button id="addRowDash" class="btn btn-lg bg-cyan waves-effect">Ajouter une personne de contact</button>
+											<p id="txtInitiatePersContDash" style="display:none" class="font-bold text-center">Veuillez confirmer l'ajout du contact</p>
+											<button id="btnCancelAddPersContDash" style="display:none" class="btn btn-lg bg-grey waves-effect" type="reset">Annuler</button>
+											<button id="btnAddPerContDash" class="btn btn-lg bg-cyan waves-effect" style="display:none" type="submit">Confirmer</button>
+										</div>
+										<form id="formNewPersContDash" onsubmit="event.preventDefault();" method="post">
+											<table id="dtPersConDash" class="table table-bordered table-striped table-hover dataTable table-condensed cellspacing-none full-width">
+												<thead>
+													<tr>
+														<th>Nom</th>
+														<th>Prénom</th>
+														<th>Email</th>
+														<th>Téléphone</th>
+													</tr>
+												</thead>
+												<tbody>
+				
+												</tbody>
+											</table>
+										</form>
+									</div>
+							<button type="button" id="confirmStage" class="btn btn-lg bg-cyan waves-effect notification-button" data-placement-from="bottom" data-placement-align="right" data-animate-enter="animated zoomInRight" data-animate-exit="animated zoomOutRight" data-color-name="bg-red">Confirmer les données de stage</button>
+						</div>
+					</div>
+                </div>
+			</div>
+		</div>
+	<!-- </section> -->
+</div>
+<div id="pageDashboardTeacher" style="display: none;">
+	<section class="content">
+			<div class="container-fluid">
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+					<!-- Tabs Utilisateurs & Responsables -->				
+					<div class="card">
+						<div class="header">
+							<h2 class="titre">
+								Rechercher un utilisateur ou un responsable
+							</h2>
+							<small>
+								TODO
+							</small>
+							<div id="btnsUsersEtResponsables" class="text-center">															
+							</div>
+						</div>
+						<div class="body">
+							<!-- Nav tabs Utilisateurs & Responsables-->
+							<ul id="tabsUsersEtResponsables" class="nav nav-tabs tab-nav-right tab-col-teal" role="tablist">
+								<li role="presentation" class="active">
+									<a href="#utilisateurs" data-toggle="tab">
+									 	<i class="material-icons">face</i> Utilisateurs
+									</a>
+								</li>
+								<li role="presentation">
+									<a href="#responsables" data-toggle="tab">
+										<i class="material-icons">assignment_ind</i> Responsables
+									</a>
+								</li>
+							</ul>
+							<!-- Tab panes -->
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade in active" id="utilisateurs">
+	                                <div class="table-responsive">
+	                                <!-- DataTable Utilisateurs -->
+									<table id="dtUtilisateurs" class="table table-bordered table-striped table-hover dataTable table-condensed cellspacing-none full-width">
+										<thead>
+											<tr>
+												<th>Nom</th>
+												<th>Prénom</th>
+												<th>Email</th>
+												<th>Téléphone</th>
+												<th>Etat</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+									</div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="responsables">
+	                                <!-- DataTable Responsables -->
+	                                <div class="table-responsive">
+									<table id="dtResponsables" class="table table-bordered table-striped table-hover dataTable table-condensed cellspacing-none full-width">
+										<thead>
+											<tr>
+												<th>Nom</th>
+												<th>Prénom</th>
+												<th>Email</th>
+												<th>Téléphone</th>
+												<th>Entreprise</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+									</div>
+                                </div>
+                            </div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>
+                                Evolution des recherches de stage
+                            </h2>
+                            <ul class="header-dropdown m-r--5">
+                                <li>
+                                    <a href="javascript:void(0);" data-toggle="cardloading" data-loading-effect="timer">
+                                        <i class="material-icons">loop</i>
+                                    </a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                        <div class="body">
+    						<div id="piechartTeacher" style="width: 100%; height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+			</div>
+	</section>
+</div>
+
+

@@ -1,0 +1,148 @@
+package biz.ucc;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Logger;
+import biz.contact.ContactBiz.Etat;
+import biz.contact.ContactDto;
+import biz.entreprise.EntrepriseDto;
+import biz.pdc.PersonneContactDto;
+import biz.stage.StageBiz;
+import biz.stage.StageDto;
+import biz.user.UserDto;
+import dal.dao.ContactDao;
+import dal.dao.EntrepriseDao;
+import dal.dao.PersonneContactDao;
+import dal.dao.StageDao;
+import dal.dao.UserDao;
+import dal.services.DalServices;
+import exceptions.BizException;
+import exceptions.OptimisticLockException;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+public class StageUccImpl implements StageUcc {
+
+  @DependanceInjection
+  private StageDao stageDao;
+
+  @DependanceInjection
+  private DalServices dalServices;
+  @DependanceInjection
+  private UserDao userDao;
+  @DependanceInjection
+  private PersonneContactDao pcDao;
+  @DependanceInjection
+  private ContactDao contactDao;
+  @DependanceInjection
+  private EntrepriseDao entrepriseDao;
+
+  @Override
+  public StageDto confirmDataStage(StageDto stage, ContactDto contact) {
+    Util.checkObject(stage);
+    Util.checkObject(stage.getEntrepriseDto());
+    Util.checkObject(stage.getUtilisateurDto());
+    Util.checkObject(stage.getResponsableDto());
+
+    StageBiz stageAVerif = (StageBiz) stage;
+    Util.checkFormatString(stageAVerif.getAdresse(), stageAVerif.MAX_CARACTERES_ADRESSE,
+        "Le format de l'adresse est incorrect");
+    if (stageAVerif.getBoite() != null) {
+      Util.checkFormatString(stageAVerif.getBoite(), stageAVerif.MAX_CARACTERES_BOITE,
+          "Le format de la boite est incorrect");
+    }
+    Util.checkFormatString(stageAVerif.getCodePostal(), stageAVerif.MAX_CARACTERES_CODE_POSTAL,
+        "Le format du code postal est incorrect");
+    Util.checkFormatString(stageAVerif.getVille(), stageAVerif.MAX_CARACTERES_VILLE,
+        "Le format de l'adresse est incorrect");
+    Util.checkFormatDate(stageAVerif.getDateSignature(), "Le format de la date est incorrect");
+
+    stage.setAnneeAcademique(Util.localDateToYear(LocalDate.now()));
+    stage.setNumVersion(1);
+
+    StageDto stageEnDb = null;
+    try {
+      dalServices.startTransaction();
+
+      UserDto userAVerifier = userDao.getUser(stage.getUtilisateurDto().getIdUtilisateur());
+      EntrepriseDto entrepriseAVerifier =
+          entrepriseDao.getEntreprise(stage.getEntrepriseDto().getIdEntreprise());
+      PersonneContactDto pCAVerifier =
+          pcDao.getPersonneContact(stage.getResponsableDto().getIdPersonneContact());
+      ContactDto contactAVerifier = contactDao.getContact(contact.getIdContact());
+
+      if (userAVerifier == null || entrepriseAVerifier == null || pCAVerifier == null
+          || contactAVerifier == null) {
+        throw new BizException(
+            "L'entreprise, l'utilisateur, le responsable ou le contact n'existe pas");
+      }
+      if (contact.getNumVersion() != contactAVerifier.getNumVersion()) {
+        throw new OptimisticLockException("Le contact a été modifié entre temps", contactAVerifier);
+      }
+      if (!userAVerifier.getAnneeAcademique().equals(stage.getAnneeAcademique())) {
+        throw new BizException(
+            "L'année académique du stage et de l'utilisateur ne correspondent pas");
+      }
+      if (stageDao.getStage(stage.getUtilisateurDto().getIdUtilisateur()) != null) {
+        throw new BizException("Vous ne pouvez plus créer de stage");
+      }
+      if (!pcDao.personneDeContactAppartientEntreprise(
+          stage.getResponsableDto().getIdPersonneContact(),
+          stage.getEntrepriseDto().getIdEntreprise())) {
+        throw new BizException("Le responsable n'appartient pas à l'entreprise");
+      }
+
+      if (contactDao.getContacts(stage.getUtilisateurDto(), Etat.STAGE_EN_ORDRE.toString())
+          .size() != 0) {
+        throw new BizException(
+            "Création de stage impossible si il existe un contact stage en ordre");
+      }
+      List<ContactDto> contactsAcceptes =
+          contactDao.getContacts(stage.getUtilisateurDto(), Etat.ACCEPTE.toString());
+      if (contactsAcceptes.size() != 1) {
+        throw new BizException(
+            "Création de stage uniquement possible avec un et un seul contact accepté");
+      }
+      ContactDto contactAccepte = contactsAcceptes.get(0);
+      if (contactAccepte.getIdContact() != contactAVerifier.getIdContact()) {
+        throw new BizException("Le contact et le stage ne correspond pas");
+      }
+      if (contactAccepte.getEntrepriseDto()
+          .getIdEntreprise() != (entrepriseAVerifier.getIdEntreprise())) {
+        throw new BizException("L'entreprise du stage et du contact accepté ne correspondent pas");
+      }
+      if (stageDao.getStage(stage.getUtilisateurDto().getIdUtilisateur()) != null) {
+        throw new BizException("Vous ne pouvez plus créer de stage");
+      }
+      stageEnDb = stageDao.insertStage(stage);
+      contactAccepte.setEtat(Etat.STAGE_EN_ORDRE.toString());
+      contactDao.updateEtatContact(contactAccepte);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return stageEnDb;
+  }
+
+
+  @Override
+  public StageDto visualiserStage(int idUtilisateur) {
+    StageDto stage;
+
+    try {
+      dalServices.startTransaction();
+      stage = stageDao.getStage(idUtilisateur);
+    } catch (Exception ex) {
+      Logger.getLogger("stagifyLogger").fine(ex.getMessage());
+      dalServices.rollback();
+      throw ex;
+    } finally {
+      dalServices.commitTransaction();
+    }
+    return stage;
+  }
+
+}

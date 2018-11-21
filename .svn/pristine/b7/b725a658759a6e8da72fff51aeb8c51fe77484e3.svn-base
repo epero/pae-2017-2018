@@ -1,0 +1,7 @@
+$('#btn-signup').click(function(){
+    console.log("Inscription !");
+});
+
+$('#btn-cancel').click(function(){
+    FrontEnd.displayPage('pageLogin');
+});

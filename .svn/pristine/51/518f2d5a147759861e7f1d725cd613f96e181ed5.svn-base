@@ -1,0 +1,5 @@
+package biz_ucc;
+
+public class UserUCCImpl implements UserUCC {
+
+}

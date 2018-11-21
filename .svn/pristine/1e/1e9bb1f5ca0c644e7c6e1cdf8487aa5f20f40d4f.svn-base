@@ -1,0 +1,21 @@
+package dal.dao;
+
+import java.util.List;
+import biz.ucc.UserUCCImpl;;
+
+public interface UtilisateurDAO {
+
+  // public BizFactory getUser();
+
+  public List<UserUCCImpl> getTousLesUtilisateurs();
+
+  // public UserUCCImpl getUtilisateur(int idUtilisateur);
+
+  public UserUCCImpl getUtilisateur(String pseudo);
+
+  public boolean insertUtilisateur(UserUCCImpl utilisateur);
+
+  public boolean updateUtilisateur(UserUCCImpl utilisateur);
+
+  public boolean deleteUtilisateur(UserUCCImpl utilisateur);
+}

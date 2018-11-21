@@ -1,0 +1,11 @@
+package dal.dao;
+
+import biz.factory.BizFactory;
+import util.AppContext.DependanceInjection;
+
+public class MockStageDaoImpl {
+
+  @DependanceInjection
+  private BizFactory factory;
+
+}

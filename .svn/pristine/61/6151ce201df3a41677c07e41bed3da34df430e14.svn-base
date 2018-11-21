@@ -1,0 +1,14 @@
+package exceptions;
+
+public class BizException extends RuntimeException {
+
+  public BizException() {
+    // TODO Auto-generated constructor stub
+  }
+
+  public BizException(String message) {
+    super(message);
+    // TODO Auto-generated constructor stub
+  }
+
+}

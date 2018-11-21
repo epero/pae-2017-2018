@@ -1,0 +1,40 @@
+package biz.ucc;
+
+import biz.user.UserBiz;
+import biz.user.UserDto;
+import dal.dao.UserDao;
+import util.AppContext.DependanceInjection;
+import util.Util;
+
+class UserUccImpl implements UserUcc {
+
+  @DependanceInjection
+  private UserDao userDao;
+
+  @DependanceInjection
+  private Util util;
+
+  @Override
+  public UserDto seConnecter(String pseudo, String mdp) {
+
+    try {
+      util.checkString(pseudo);
+      util.checkString(mdp);
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
+    UserBiz userAVerf = (UserBiz) userDao.getUser(pseudo);
+
+
+    if (userAVerf != null && userAVerf.verifierMotDePasse(mdp)) {
+      return userAVerf;
+    }
+    return null;
+  }
+
+  @Override
+  public UserDto sinscrire(UserDto user) {
+    // TODO Auto-generated method stub
+    return userDao.insertUser(user);
+  }
+}

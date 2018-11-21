@@ -1,0 +1,5 @@
+package biz.stage;
+
+public interface StageBiz extends StageDto {
+
+}

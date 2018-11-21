@@ -1,0 +1,14 @@
+package biz.factory;
+
+import biz.user.UserDTO;
+import biz.user.UserImpl;
+
+class BizFactoryImpl implements BizFactory {
+
+  @Override
+  public UserDTO getUser() {
+    return new UserImpl();
+  }
+
+}
+

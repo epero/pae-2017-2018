@@ -1,0 +1,15 @@
+package dal.dao;
+
+import biz.factory.BizFactory;
+import dal.services.DalBackendServices;
+import util.AppContext.DependanceInjection;
+
+public class StageDaoImpl implements StageDao {
+
+  @DependanceInjection
+  private DalBackendServices dalBackendService;
+
+  @DependanceInjection
+  private BizFactory factory;
+
+}

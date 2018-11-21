@@ -1,0 +1,25 @@
+package dal.dao;
+
+import java.util.List;
+import biz.entreprise.EntrepriseDto;
+
+public class MockEntrepriseDaoImpl implements EntrepriseDao {
+
+  @Override
+  public List<EntrepriseDto> getAllEntreprises() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * @Override public EntrepriseDto insertEntreprise(EntrepriseDto entreprise) { // TODO
+   * Auto-generated method stub return null; }
+   */
+
+  @Override
+  public EntrepriseDto getEntreprise(int idEntreprise) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+}

@@ -1,0 +1,8 @@
+package biz.ucc;
+
+import biz.user.UserDTO;
+
+public interface UserUCC {
+
+  UserDTO seConnecter(String pseudo, String mdp);
+}
